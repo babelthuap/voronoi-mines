@@ -23,7 +23,7 @@
     </center>
   </div>
   <script>
-    var FILES = {1: 'main1.js', 2: 'main2.js', 3: 'main3.js'};
+    var FILES = {1: 'main1.js', 2: 'main.js', 3: 'main3.js'};
     var metric = new URLSearchParams(location.search).get('metric');
     var scriptTag = document.createElement('script');
     scriptTag.src = FILES[metric] || 'main.js';
