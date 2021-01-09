@@ -240,20 +240,20 @@ function VoronoiCells() {
 
   // calculate geometric centers
   setTimeout(() => {
-    for (const [id, {rows, geometricCenter}] of cells.entries()) {
-      let minX = Infinity;
-      let maxX = -Infinity;
-      let minY = Infinity;
-      let maxY = -Infinity;
-      for (const [y, row] of rows.entries()) {
-        if (y < minY) minY = y;
-        if (y > maxY) maxY = y;
-        if (row[0] < minX) minX = row[0];
-        if (row[row.length - 1] > maxX) maxX = row[row.length - 1];
+    stopwatch('calculate geometric centers', () => {
+      for (const [id, {rows, geometricCenter}] of cells.entries()) {
+        let num = 0;
+        let xTotal = 0;
+        let yTotal = 0;
+        for (const [y, row] of rows.entries()) {
+          num += row.length;
+          xTotal += row.length * (row.length + 2 * row[0] - 1) / 2;
+          yTotal += y * row.length;
+        }
+        geometricCenter[0] = Math.round(xTotal / num);
+        geometricCenter[1] = Math.round(yTotal / num);
       }
-      geometricCenter[0] = (minX + maxX) >> 1;
-      geometricCenter[1] = (minY + maxY) >> 1;
-    }
+    });
   }, 0);
 
   // methods
