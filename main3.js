@@ -142,7 +142,7 @@ function Bitmap() {
 }
 
 
-const NBR_OFFSETS = [[0, 1], [1, 1], [1, 0]];  // right, down, & diagonal
+const NBR_OFFSETS = [[0, 1], [1, 0]];  // right, down
 
 // a rendered set of cells with adjacency determined by voronoi rules
 function VoronoiCells() {
@@ -418,24 +418,54 @@ function Minesweeper(cellGrid) {
     return updatedIds;
   };
 
+  // swaps the mine in the given cell with a randomly selected open cell and
+  // updates the cell labels accordingly
+  const swapMine = (originalId) => {
+    let numOpenTiles = cellGrid.getSize() - numMines;
+    let indexToSwap = rand(numOpenTiles);
+    let i = 0;
+    for (const [id, data] of cellData.entries()) {
+      if (!data.hasMine) {
+        if (i === indexToSwap) {
+          data.hasMine = true;
+          for (const nbrId of cellGrid.getAdjacentIds(id)) {
+            cellData.get(nbrId).adjacentMines++;
+          }
+          cellData.get(originalId).hasMine = false;
+          for (const nbrId of cellGrid.getAdjacentIds(originalId)) {
+            cellData.get(nbrId).adjacentMines--;
+          }
+          return;
+        }
+        i++;
+      }
+    }
+  };
+
+  let isFirstMove = true;
   const reveal = (clickedId) => {
     const data = cellData.get(clickedId);
     if (data.isRevealed || data.isFlagged) {
       return;
     }
     if (data.hasMine) {
-      // TODO: don't allow player to lose on the first move
-      data.isRevealed = true;
-      cellGrid.renderCells([{
-        id: clickedId,
-        color: data.getColor(),
-        label: data.getLabel(),
-        labelColor: data.getLabelColor(),
-      }]);
-      this.gameInProgress = false;
-      BOARD_CONTAINER.appendChild(BOOM);
-      return;
+      if (isFirstMove) {
+        // don't allow player to lose on the first move
+        swapMine(clickedId);
+      } else {
+        data.isRevealed = true;
+        cellGrid.renderCells([{
+          id: clickedId,
+          color: data.getColor(),
+          label: data.getLabel(),
+          labelColor: data.getLabelColor(),
+        }]);
+        this.gameInProgress = false;
+        BOARD_CONTAINER.appendChild(BOOM);
+        return;
+      }
     }
+    isFirstMove = false;
     const updatedIds = revealRecursive(clickedId);
     const idColorLabelArr = [...updatedIds].map(id => {
       const data = cellData.get(id);
