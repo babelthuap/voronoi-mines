@@ -101,7 +101,7 @@ function Bitmap() {
   ctx.fillStyle = '#bbb';
   ctx.fillRect(0, 0, width, height);
   let imageData = ctx.getImageData(0, 0, width, height);
-  ctx.font = `${24}px 'Courier New'`;
+  ctx.font = `${24}px Arial`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
