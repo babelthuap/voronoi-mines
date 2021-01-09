@@ -1,0 +1,80 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+body {
+  background-color: teal;
+  color: #fff;
+  font-family: Courier, monospace;
+}
+
+#controls {
+  font-size: 16px;
+  position: relative;
+  text-align: center;
+  margin: 8px;
+}
+
+#inputs {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+#inputs input {
+  font-size: 16px;
+}
+
+#restart {
+  background-color: #000;
+  color: #fff;
+  cursor: pointer;
+  font-family: Courier, monospace;
+  font-size: 20px;
+  margin: 0 24px;
+}
+
+#counters {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+#board {
+  height: calc(100vh - 80px);
+  margin: 0 36px 36px 36px;
+  user-select: none;
+}
+
+#board.pointer {
+  cursor: pointer;
+}
+
+#board canvas {
+  border: 2px solid #777;
+}
+
+.boom, .winner {
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 30px;
+  font-size: 80px;
+  font-weight: bold;
+  padding: 32px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.boom {
+  border: 30px solid rgba(255, 0, 0, 0.3);
+  color: red;
+}
+
+.winner {
+  border: 30px solid rgba(0, 255, 0, 0.3);
+  color: green;
+}

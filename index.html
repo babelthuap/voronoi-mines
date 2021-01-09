@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Voronoi Minesweeper</title>
+  <link rel="stylesheet" type="text/css" href="style.css"></head>
+<body>
+  <div id="controls">
+    <div id="inputs">
+      # cells: <input id="numCells" type="number" value="64" min="3" max="1000">
+      density: <input id="density" type="number" value="15" min="1" max="90">%
+    </div>
+    <button id="restart" title="hotkey: s">Restart</button>
+    <div id="counters">
+      Mines: <span id="numMines"></span>,
+      Flags: <span id="numFlags"></span>
+    </div>
+  </div>
+  <div id="board">
+    <center>
+      <h1>loading...</h1>
+    </center>
+  </div>
+  <script type="text/javascript" src="main.js"></script>
+</body>
+</html>
