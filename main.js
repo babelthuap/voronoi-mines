@@ -187,7 +187,7 @@ function VoronoiCells() {
         let minDistance = Infinity;
         for (const id of cells.keys()) {
           const [idX, idY] = unpair(id);
-          const d = dist3(x, y, idX, idY);
+          const d = dist2(x, y, idX, idY);
           if (d < minDistance) {
             minDistance = d;
             closestId = id;
