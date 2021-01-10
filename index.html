@@ -18,16 +18,8 @@
     </div>
   </div>
   <div id="board">
-    <center>
-      <h1>loading...</h1>
-    </center>
+    <center><h1>loading...</h1></center>
   </div>
-  <script>
-    var FILES = {1: 'main1.js', 2: 'main.js', 3: 'main3.js'};
-    var metric = new URLSearchParams(location.search).get('metric');
-    var scriptTag = document.createElement('script');
-    scriptTag.src = FILES[metric] || 'main.js';
-    document.body.appendChild(scriptTag);
-  </script>
+  <script type="module" src="main.js"></script>
 </body>
 </html>
