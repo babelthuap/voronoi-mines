@@ -1,4 +1,4 @@
-import {El, rand, shuffle, stopwatch} from './util.js';
+import {El, rand, shuffle} from './util.js';
 
 
 // colors
@@ -17,7 +17,9 @@ const NUM_COLOR_MAP = {
 };
 
 
-// Minesweeper-specific cell data
+/**
+ * Minesweeper-specific cell data
+ */
 function MinesweeperData(hasMine) {
   this.adjacentMines = 0;
   this.hasMine = hasMine;
@@ -45,13 +47,15 @@ MinesweeperData.prototype.getLabelColor = function() {
 };
 
 
-// logic for a Minesweeper game on a grid of cells
-// the cell grid must implement:
-//   - getSize()
-//   - getIds()
-//   - getAdjacentIds(id)
-//   - renderCells([{id, color, label, labelColor}])
-//   - addListener(name, callback), where callback takes (event, cellId)
+/**
+ * logic for a Minesweeper game on a grid of cells
+ * the cell grid must implement:
+ *   - getSize()
+ *   - getIds()
+ *   - getAdjacentIds(id)
+ *   - renderCells([{id, color, label, labelColor}])
+ *   - addListener(name, callback), where callback takes (event, cellId)
+ */
 export default function Minesweeper(cellGrid) {
   this.gameInProgress = true;
   let numFlags = 0;
@@ -97,8 +101,10 @@ export default function Minesweeper(cellGrid) {
     return cellData;
   })();
 
-  // swaps the mine in the given cell with a randomly selected open cell and
-  // updates the cell labels accordingly
+  /**
+   * swaps the mine in the given cell with a randomly selected open cell and
+   * updates the cell labels accordingly
+   */
   const swapMine = (originalId) => {
     let numOpenTiles = cellGrid.getSize() - numMines;
     let indexToSwap = rand(numOpenTiles);
@@ -121,7 +127,9 @@ export default function Minesweeper(cellGrid) {
     }
   };
 
-  // toggle flag
+  /**
+   * toggles flag on a cell
+   */
   const flag = (id) => {
     const data = cellData.get(id);
     if (!data.isRevealed) {
@@ -137,7 +145,9 @@ export default function Minesweeper(cellGrid) {
     }
   };
 
-  // rock raiders
+  /**
+   * rock raiders (recursive helper for `reveal`)
+   */
   const revealRecursive = (id, updatedIds = new Set()) => {
     const data = cellData.get(id);
     if (data.isRevealed) {
@@ -161,6 +171,9 @@ export default function Minesweeper(cellGrid) {
     return updatedIds;
   };
 
+  /**
+   * handles revealing a cell
+   */
   let isFirstMove = true;
   const reveal = (clickedId) => {
     const data = cellData.get(clickedId);
@@ -203,59 +216,69 @@ export default function Minesweeper(cellGrid) {
     }
   };
 
-  // handle hover
+  /**
+   * handles hover
+   */
   let hoverId = null;
+  let hoverRenderInProgress = false;
   cellGrid.addListener('mousemove', (event, cellId) => {
-    if (cellId === hoverId || cellId === null) {
+    if (cellId === hoverId || cellId === null || hoverRenderInProgress) {
       return;
     }
-    stopwatch('hover', () => {
-      const updatedIds = new Set();
-      // reset old hover cells
-      if (hoverId !== null) {
-        cellData.get(hoverId).hover = false;
-        updatedIds.add(hoverId);
-        for (const nbrId of cellGrid.getAdjacentIds(hoverId)) {
-          cellData.get(nbrId).hover = false;
-          updatedIds.add(nbrId);
-        }
+    hoverRenderInProgress = true;
+
+    const start = performance.now();
+
+    const updatedIds = new Set();
+    // reset old hover cells
+    if (hoverId !== null) {
+      cellData.get(hoverId).hover = false;
+      updatedIds.add(hoverId);
+      for (const nbrId of cellGrid.getAdjacentIds(hoverId)) {
+        cellData.get(nbrId).hover = false;
+        updatedIds.add(nbrId);
       }
-      // highlight new hover cells
-      const hoverCellData = cellData.get(cellId);
-      hoverCellData.hover = true;
-      updatedIds.add(cellId);
-      for (const nbrId of cellGrid.getAdjacentIds(cellId)) {
-        cellData.get(nbrId).hover = true;
-        if (updatedIds.has(nbrId)) {
-          // we just un-highlighted and are now trying to re-highlight. the net
-          // effect is to do nothing; hence, no need to update this cell.
-          updatedIds.delete(nbrId);
-        } else {
-          updatedIds.add(nbrId);
-        }
-      }
-      // update cursor to indicate whether user can reveal tile
-      if (hoverCellData.isRevealed || hoverCellData.isFlagged) {
-        El.BOARD_CONTAINER.classList.remove('pointer');
+    }
+    // highlight new hover cells
+    const hoverCellData = cellData.get(cellId);
+    hoverCellData.hover = true;
+    updatedIds.add(cellId);
+    for (const nbrId of cellGrid.getAdjacentIds(cellId)) {
+      cellData.get(nbrId).hover = true;
+      if (updatedIds.has(nbrId)) {
+        // we just un-highlighted and are now trying to re-highlight. the net
+        // effect is to do nothing; hence, no need to update this cell.
+        updatedIds.delete(nbrId);
       } else {
-        El.BOARD_CONTAINER.classList.add('pointer');
+        updatedIds.add(nbrId);
       }
-      // re-render all updated cells
-      const idColorLabelArr = [...updatedIds].map(id => {
-        const data = cellData.get(id);
-        return {
-          id: id,
-          color: data.getColor(),
-          label: data.getLabel(),
-          labelColor: data.getLabelColor(),
-        };
-      });
-      cellGrid.renderCells(idColorLabelArr);
-      hoverId = cellId;
+    }
+    // update cursor to indicate whether user can reveal cell
+    if (hoverCellData.isRevealed || hoverCellData.isFlagged) {
+      El.BOARD_CONTAINER.classList.remove('pointer');
+    } else {
+      El.BOARD_CONTAINER.classList.add('pointer');
+    }
+    // re-render all updated cells
+    const idColorLabelArr = [...updatedIds].map(id => {
+      const data = cellData.get(id);
+      return {
+        id: id,
+        color: data.getColor(),
+        label: data.getLabel(),
+        labelColor: data.getLabelColor(),
+      };
     });
+    cellGrid.renderCells(idColorLabelArr);
+    hoverId = cellId;
+    requestAnimationFrame(() => hoverRenderInProgress = false);
+
+    console.log('hover render', `${(performance.now() - start).toFixed(1)} ms`);
   });
 
-  // disable hover when mouse leaves board
+  /**
+   * disables hover highlight when mouse leaves board
+   */
   cellGrid.addListener('mouseleave', () => {
     const updatedIds = new Set();
     // reset old hover cells
@@ -284,27 +307,27 @@ export default function Minesweeper(cellGrid) {
     hoverId = null;
   });
 
-  // handle clicks
+  /**
+   * handles clicks
+   */
   cellGrid.addListener('mousedown', (event, cellId) => {
     if (this.gameInProgress) {
-      stopwatch('handle click', () => {
-        // left or right click?
-        if (event.button !== 0 || event.altKey || event.ctrlKey ||
-            event.metaKey) {
-          flag(cellId);
+      // left or right click?
+      if (event.button !== 0 || event.altKey || event.ctrlKey ||
+          event.metaKey) {
+        flag(cellId);
+      } else {
+        reveal(cellId);
+      }
+      // update cursor to indicate whether user can reveal cell
+      if (hoverId !== null) {
+        const hoverCellData = cellData.get(cellId);
+        if (hoverCellData.isRevealed || hoverCellData.isFlagged) {
+          El.BOARD_CONTAINER.classList.remove('pointer');
         } else {
-          reveal(cellId);
+          El.BOARD_CONTAINER.classList.add('pointer');
         }
-        // update cursor to indicate whether user can reveal tile
-        if (hoverId !== null) {
-          const hoverCellData = cellData.get(cellId);
-          if (hoverCellData.isRevealed || hoverCellData.isFlagged) {
-            El.BOARD_CONTAINER.classList.remove('pointer');
-          } else {
-            El.BOARD_CONTAINER.classList.add('pointer');
-          }
-        }
-      });
+      }
     }
   });
 }

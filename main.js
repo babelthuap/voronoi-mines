@@ -2,15 +2,17 @@ import Minesweeper from './Minesweeper.js';
 import {El, stopwatch} from './util.js';
 import VoronoiCells from './VoronoiCells.js';
 
-// start a new game
+/**
+ * starts a new game
+ */
 let startInProgress = false;
 const start = () => {
   if (startInProgress) {
     return;
   }
+  startInProgress = true;
   stopwatch('initialize new game', () => {
-    console.log('### BEGIN INITIALIZE NEW GAME');
-    startInProgress = true;
+    console.log('\n### START NEW GAME ###');
     return new Promise((resolve) => {
       const cellGrid = new VoronoiCells();
       const game = new Minesweeper(cellGrid);
@@ -20,9 +22,12 @@ const start = () => {
   });
 };
 
+// initialize the first game on page load
 start();
 
-// listen for inputs that trigger a new game
+/**
+ * listen for inputs that trigger a new game
+ */
 const handleInputKeypress = (event) => {
   if (event.key === 'Enter') start();
 };

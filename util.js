@@ -56,7 +56,9 @@ const MASK = 2 ** 15 - 1;
 export const pair = (x, y) => (x << 15) + y;
 export const unpair = n => [n >> 15, n & MASK];
 
-// time the execution of a function
+/**
+ * times the execution of a function
+ */
 export const stopwatch = (label, fn) => {
   const start = performance.now();
   Promise.resolve(fn()).then(() => {
@@ -65,8 +67,10 @@ export const stopwatch = (label, fn) => {
   });
 };
 
-// sort a lattice of points by their distance from the origin, breaking ties by
-// comparing polar angles. the output array is of the form [x0, y0, x1, y1, ...]
+/**
+ * sorts a lattice of points by their distance from the origin, breaking ties by
+ * comparing polar angles. the output array is of the form [x0, y0, x1, y1, ...]
+ */
 export const sortLattice = (radius) => {
   const quadrant = (x, y) => {
     if (x > 0 && y >= 0) return 1;

@@ -28,7 +28,9 @@ const SORTED_LATTICE = (() => {
   return sortedLattice;
 })();
 
-// a rendered set of cells with adjacency determined by voronoi rules
+/**
+ * a rendered set of cells with adjacency determined by voronoi rules
+ */
 export default function VoronoiCells() {
   // init bitmap
   const bitmap = new Bitmap();
@@ -227,8 +229,7 @@ export default function VoronoiCells() {
     addListener(name, callback) {
       bitmap.addEventListener(name, (event) => {
         const {layerX, layerY} = event;
-        if (0 <= layerX && layerX < width && 0 <= layerY &&
-            layerY < height) {
+        if (0 <= layerX && layerX < width && 0 <= layerY && layerY < height) {
           const cell = coordsToCellId[layerY][layerX];
           callback(event, cell);
         } else {

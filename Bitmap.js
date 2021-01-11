@@ -1,7 +1,9 @@
 import {El} from './util.js';
 
-// a canvas that fills the board container and whose pixels can be written to
-// individually
+/**
+ * a canvas that fills the board container and whose pixels can be written to
+ * individually
+ */
 export default function Bitmap() {
   // fill the entire container
   const width = El.BOARD_CONTAINER.offsetWidth;
