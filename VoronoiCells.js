@@ -116,14 +116,6 @@ export default function VoronoiCells() {
             }
             row[x] = closestId;
           }
-          const closestCell = cells[closestId];
-          if (closestCell.minY === undefined) {
-            closestCell.minY = y;
-          }
-          const yOffset = y - closestCell.minY;
-          const cellRow =
-              closestCell.rows[yOffset] || (closestCell.rows[yOffset] = []);
-          cellRow.push(x);
         }
       }
       const duration = performance.now() - start;
@@ -133,24 +125,40 @@ export default function VoronoiCells() {
     return coordsToCellId;
   })();
 
-  // detect/draw borders and neighbors
+  // draw borders, detect neighbors, calculate cell rows
   const borderPixels = (() => {
     const start = performance.now();
     const borderPixels = new Set();
+    // extract this to make it maybe faster
+    const checkNeighborsAndBorders = (x, y, id, cell) => {
+      const rightNbrId = coordsToCellId[y][x + 1];
+      if (rightNbrId !== id) {
+        borderPixels.add(pair(x, y));
+        bitmap.setPixel(x, y, BORDER);
+        cell.neighbors.add(rightNbrId);
+        cells[rightNbrId].neighbors.add(id);
+      }
+      const bottomNbrId = coordsToCellId[y + 1][x];
+      if (bottomNbrId !== id) {
+        borderPixels.add(pair(x, y));
+        bitmap.setPixel(x, y, BORDER);
+        cell.neighbors.add(bottomNbrId);
+        cells[bottomNbrId].neighbors.add(id);
+      }
+    };
     for (let y = 0; y < height - 1; y++) {
       for (let x = 0; x < width - 1; x++) {
         const id = coordsToCellId[y][x];
-        for (const [dx, dy] of NBR_OFFSETS) {
-          const nbrX = x + dx;
-          const nbrY = y + dy;
-          const nbrId = coordsToCellId[nbrY][nbrX];
-          if (nbrId !== id) {
-            borderPixels.add(pair(x, y));
-            bitmap.setPixel(x, y, BORDER);
-            cells[id].neighbors.add(nbrId);
-            cells[nbrId].neighbors.add(id);
-          }
+        const cell = cells[id];
+        // neighbors & borders
+        checkNeighborsAndBorders(x, y, id, cell);
+        // cell rows
+        if (cell.minY === undefined) {
+          cell.minY = y;
         }
+        const yOffset = y - cell.minY;
+        const cellRow = cell.rows[yOffset] || (cell.rows[yOffset] = []);
+        cellRow.push(x);
       }
     }
     const rightEdge = width - 1;
