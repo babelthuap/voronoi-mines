@@ -223,46 +223,48 @@ export default function Minesweeper(cellGrid) {
    * handles hover
    */
   let hoverId = null;
-  let hoverRenderInProgress = false;
+  let hoverRenderPromise = null;
   cellGrid.addListener('mousemove', (event, cellId) => {
-    if (cellId === hoverId || cellId === null || hoverRenderInProgress) {
+    if (cellId === hoverId || cellId === null || hoverRenderPromise) {
       return;
     }
-    hoverRenderInProgress = true;
-    const updatedIds = new Set();
-    // reset old hover cells
-    if (hoverId !== null) {
-      cellData.get(hoverId).hover = false;
-      updatedIds.add(hoverId);
-      for (const nbrId of cellGrid.getAdjacentIds(hoverId)) {
-        cellData.get(nbrId).hover = false;
-        updatedIds.add(nbrId);
+    hoverRenderPromise = new Promise((resolve) => {
+      const updatedIds = new Set();
+      // reset old hover cells
+      if (hoverId !== null) {
+        cellData.get(hoverId).hover = false;
+        updatedIds.add(hoverId);
+        for (const nbrId of cellGrid.getAdjacentIds(hoverId)) {
+          cellData.get(nbrId).hover = false;
+          updatedIds.add(nbrId);
+        }
       }
-    }
-    // highlight new hover cells
-    const hoverCellData = cellData.get(cellId);
-    hoverCellData.hover = true;
-    updatedIds.add(cellId);
-    for (const nbrId of cellGrid.getAdjacentIds(cellId)) {
-      cellData.get(nbrId).hover = true;
-      if (updatedIds.has(nbrId)) {
-        // we just un-highlighted and are now trying to re-highlight. the net
-        // effect is to do nothing; hence, no need to update this cell.
-        updatedIds.delete(nbrId);
-      } else {
-        updatedIds.add(nbrId);
+      // highlight new hover cells
+      const hoverCellData = cellData.get(cellId);
+      hoverCellData.hover = true;
+      updatedIds.add(cellId);
+      for (const nbrId of cellGrid.getAdjacentIds(cellId)) {
+        cellData.get(nbrId).hover = true;
+        if (updatedIds.has(nbrId)) {
+          // we just un-highlighted and are now trying to re-highlight. the net
+          // effect is to do nothing; hence, no need to update this cell.
+          updatedIds.delete(nbrId);
+        } else {
+          updatedIds.add(nbrId);
+        }
       }
-    }
-    requestAnimationFrame(() => {
-      // update cursor to indicate whether user can reveal cell
-      if (hoverCellData.isRevealed || hoverCellData.isFlagged) {
-        El.BOARD_CONTAINER.classList.remove('pointer');
-      } else {
-        El.BOARD_CONTAINER.classList.add('pointer');
-      }
-      renderCells(...updatedIds);
-      hoverId = cellId;
-      hoverRenderInProgress = false;
+      requestAnimationFrame(() => {
+        // update cursor to indicate whether user can reveal cell
+        if (hoverCellData.isRevealed || hoverCellData.isFlagged) {
+          El.BOARD_CONTAINER.classList.remove('pointer');
+        } else {
+          El.BOARD_CONTAINER.classList.add('pointer');
+        }
+        renderCells(...updatedIds);
+        hoverId = cellId;
+        resolve();
+        hoverRenderPromise = null;
+      });
     });
   });
 
@@ -270,17 +272,17 @@ export default function Minesweeper(cellGrid) {
    * disables hover highlight when mouse leaves board
    */
   cellGrid.addListener('mouseleave', () => {
-    const updatedIds = new Set();
-    // reset old hover cells
-    if (hoverId !== null) {
-      cellData.get(hoverId).hover = false;
-      updatedIds.add(hoverId);
-      for (const nbrId of cellGrid.getAdjacentIds(hoverId)) {
-        cellData.get(nbrId).hover = false;
-        updatedIds.add(nbrId);
+    Promise.resolve(hoverRenderPromise).then(() => {
+      const updatedIds = new Set();
+      // reset old hover cells
+      if (hoverId !== null) {
+        cellData.get(hoverId).hover = false;
+        updatedIds.add(hoverId);
+        for (const nbrId of cellGrid.getAdjacentIds(hoverId)) {
+          cellData.get(nbrId).hover = false;
+          updatedIds.add(nbrId);
+        }
       }
-    }
-    requestAnimationFrame(() => {
       // re-render
       renderCells(...updatedIds);
       // reset cursor
