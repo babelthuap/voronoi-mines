@@ -96,43 +96,46 @@ export default function VoronoiCells() {
     })();
 
     // fill in the gaps
-    const start = performance.now();
-    let gaps = 0;
-    for (let y = 0; y < height; y++) {
-      const row = coordsToCellId[y];
-      for (let x = 0; x < width; x++) {
-        let closestId = row[x];
-        if (closestId === undefined) {
-          gaps++;
-          let minDistance = Infinity;
-          for (let id = 0; id < cells.length; id++) {
-            const cell = cells[id];
-            const d = dist(x, y, cell.x, cell.y);
-            if (d < minDistance) {
-              minDistance = d;
-              closestId = id;
+    (() => {
+      const start = performance.now();
+      let gaps = 0;
+      for (let y = 0; y < height; y++) {
+        const row = coordsToCellId[y];
+        for (let x = 0; x < width; x++) {
+          let closestId = row[x];
+          if (closestId === undefined) {
+            gaps++;
+            let minDistance = Infinity;
+            for (let id = 0; id < cells.length; id++) {
+              const cell = cells[id];
+              const d = dist(x, y, cell.x, cell.y);
+              if (d < minDistance) {
+                minDistance = d;
+                closestId = id;
+              }
             }
+            row[x] = closestId;
           }
-          row[x] = closestId;
+          const closestCell = cells[closestId];
+          if (closestCell.minY === undefined) {
+            closestCell.minY = y;
+          }
+          const yOffset = y - closestCell.minY;
+          const cellRow =
+              closestCell.rows[yOffset] || (closestCell.rows[yOffset] = []);
+          cellRow.push(x);
         }
-        const closestCell = cells[closestId];
-        if (closestCell.minY === undefined) {
-          closestCell.minY = y;
-        }
-        const yOffset = y - closestCell.minY;
-        const cellRow =
-            closestCell.rows[yOffset] || (closestCell.rows[yOffset] = []);
-        cellRow.push(x);
       }
-    }
-    const duration = performance.now() - start;
-    console.log('fill in the gaps', `${duration.toFixed(1)} ms`);
+      const duration = performance.now() - start;
+      console.log('fill in the gaps', `${duration.toFixed(1)} ms`);
+    })();
 
     return coordsToCellId;
   })();
 
   // detect/draw borders and neighbors
   const borderPixels = (() => {
+    const start = performance.now();
     const borderPixels = new Set();
     for (let y = 0; y < height - 1; y++) {
       for (let x = 0; x < width - 1; x++) {
@@ -159,6 +162,8 @@ export default function VoronoiCells() {
       bitmap.setPixel(x, bottomEdge, BORDER);
     }
     bitmap.repaint();
+    const duration = performance.now() - start;
+    console.log('borders and neighbors', `${duration.toFixed(1)} ms`);
     return borderPixels;
   })();
 
@@ -171,10 +176,12 @@ export default function VoronoiCells() {
         let yTotal = 0;
         for (let i = 0; i < rows.length; i++) {
           const row = rows[i];
-          const y = i + minY;
-          num += row.length;
-          xTotal += row.length * (row.length + 2 * row[0] - 1) / 2;
-          yTotal += y * row.length;
+          if (row !== undefined) {
+            const y = i + minY;
+            num += row.length;
+            xTotal += row.length * (row.length + 2 * row[0] - 1) / 2;
+            yTotal += y * row.length;
+          }
         }
         geometricCenter[0] = Math.round(xTotal / num);
         geometricCenter[1] = Math.round(yTotal / num);

@@ -128,20 +128,33 @@ export default function Minesweeper(cellGrid) {
   };
 
   /**
+   * renders the specified cells
+   */
+  const renderCells = (...ids) => {
+    const idColorLabelArr = ids.map(id => {
+      const data = cellData.get(id);
+      return {
+        id: id,
+        color: data.getColor(),
+        label: data.getLabel(),
+        labelColor: data.getLabelColor(),
+      };
+    });
+    cellGrid.renderCells(idColorLabelArr);
+  };
+
+  /**
    * toggles flag on a cell
    */
   const flag = (id) => {
     const data = cellData.get(id);
     if (!data.isRevealed) {
       data.isFlagged = !data.isFlagged;
-      cellGrid.renderCells([{
-        id: id,
-        color: data.getColor(),
-        label: data.getLabel(),
-        labelColor: data.getLabelColor(),
-      }]);
-      numFlags += data.isFlagged ? 1 : -1;
-      updateCounters();
+      requestAnimationFrame(() => {
+        renderCells(id);
+        numFlags += data.isFlagged ? 1 : -1;
+        updateCounters();
+      });
     }
   };
 
@@ -185,35 +198,25 @@ export default function Minesweeper(cellGrid) {
         // don't allow player to lose on the first move
         swapMine(clickedId);
       } else {
-        data.isRevealed = true;
-        cellGrid.renderCells([{
-          id: clickedId,
-          color: data.getColor(),
-          label: data.getLabel(),
-          labelColor: data.getLabelColor(),
-        }]);
         this.gameInProgress = false;
-        El.BOARD_CONTAINER.appendChild(El.BOOM);
+        requestAnimationFrame(() => {
+          data.isRevealed = true;
+          renderCells(clickedId);
+          El.BOARD_CONTAINER.appendChild(El.BOOM);
+        });
         return;
       }
     }
     isFirstMove = false;
     const updatedIds = revealRecursive(clickedId);
-    const idColorLabelArr = [...updatedIds].map(id => {
-      const data = cellData.get(id);
-      return {
-        id: id,
-        color: data.getColor(),
-        label: data.getLabel(),
-        labelColor: data.getLabelColor(),
-      };
+    requestAnimationFrame(() => {
+      renderCells(...updatedIds);
+      updateCounters();
+      if (tilesLeftToReveal === 0) {
+        this.gameInProgress = false;
+        El.BOARD_CONTAINER.appendChild(El.WINNER);
+      }
     });
-    cellGrid.renderCells(idColorLabelArr);
-    updateCounters();
-    if (tilesLeftToReveal === 0) {
-      this.gameInProgress = false;
-      El.BOARD_CONTAINER.appendChild(El.WINNER);
-    }
   };
 
   /**
@@ -226,9 +229,6 @@ export default function Minesweeper(cellGrid) {
       return;
     }
     hoverRenderInProgress = true;
-
-    const start = performance.now();
-
     const updatedIds = new Set();
     // reset old hover cells
     if (hoverId !== null) {
@@ -253,27 +253,17 @@ export default function Minesweeper(cellGrid) {
         updatedIds.add(nbrId);
       }
     }
-    // update cursor to indicate whether user can reveal cell
-    if (hoverCellData.isRevealed || hoverCellData.isFlagged) {
-      El.BOARD_CONTAINER.classList.remove('pointer');
-    } else {
-      El.BOARD_CONTAINER.classList.add('pointer');
-    }
-    // re-render all updated cells
-    const idColorLabelArr = [...updatedIds].map(id => {
-      const data = cellData.get(id);
-      return {
-        id: id,
-        color: data.getColor(),
-        label: data.getLabel(),
-        labelColor: data.getLabelColor(),
-      };
+    requestAnimationFrame(() => {
+      // update cursor to indicate whether user can reveal cell
+      if (hoverCellData.isRevealed || hoverCellData.isFlagged) {
+        El.BOARD_CONTAINER.classList.remove('pointer');
+      } else {
+        El.BOARD_CONTAINER.classList.add('pointer');
+      }
+      renderCells(...updatedIds);
+      hoverId = cellId;
+      hoverRenderInProgress = false;
     });
-    cellGrid.renderCells(idColorLabelArr);
-    hoverId = cellId;
-    requestAnimationFrame(() => hoverRenderInProgress = false);
-
-    console.log('hover render', `${(performance.now() - start).toFixed(1)} ms`);
   });
 
   /**
@@ -290,21 +280,14 @@ export default function Minesweeper(cellGrid) {
         updatedIds.add(nbrId);
       }
     }
-    // re-render
-    const idColorLabelArr = [...updatedIds].map(id => {
-      const data = cellData.get(id);
-      return {
-        id: id,
-        color: data.getColor(),
-        label: data.getLabel(),
-        labelColor: data.getLabelColor(),
-      };
+    requestAnimationFrame(() => {
+      // re-render
+      renderCells(...updatedIds);
+      // reset cursor
+      El.BOARD_CONTAINER.classList.remove('pointer');
+      // reset hoverId
+      hoverId = null;
     });
-    cellGrid.renderCells(idColorLabelArr);
-    // reset cursor
-    El.BOARD_CONTAINER.classList.remove('pointer');
-    // reset hoverId
-    hoverId = null;
   });
 
   /**
@@ -319,8 +302,8 @@ export default function Minesweeper(cellGrid) {
       } else {
         reveal(cellId);
       }
-      // update cursor to indicate whether user can reveal cell
       if (hoverId !== null) {
+        // update cursor to indicate whether user can reveal cell
         const hoverCellData = cellData.get(cellId);
         if (hoverCellData.isRevealed || hoverCellData.isFlagged) {
           El.BOARD_CONTAINER.classList.remove('pointer');
