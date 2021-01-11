@@ -33,7 +33,14 @@ export const shuffle = (arr) => {
 };
 
 // distance function
-const metric = new URLSearchParams(location.search).get('metric');
+const possibleMetics = {
+  1: 1,
+  2: 2,
+  3: 3,
+};
+const metric =
+    possibleMetics[new URLSearchParams(location.search).get('metric')] || 2;
+
 export const dist = (metric == 1) ?
     // taxicab distance
     ((x1, y1, x2, y2) => Math.abs(x1 - x2) + Math.abs(y1 - y2)) :
@@ -71,7 +78,17 @@ export const stopwatch = (label, fn) => {
  * sorts a lattice of points by their distance from the origin, breaking ties by
  * comparing polar angles. the output array is of the form [x0, y0, x1, y1, ...]
  */
-export const sortLattice = (radius) => {
+const LATTICE_RADIUS = 127;
+export const sortLattice = () => {
+  const name = 'sortedLattice' + metric;
+  const serialized = localStorage[name];
+  if (serialized) {
+    return JSON.parse(serialized);
+  } else {
+    // clean up old version
+    localStorage.removeItem('sortedLattice');
+  }
+
   const quadrant = (x, y) => {
     if (x > 0 && y >= 0) return 1;
     if (x <= 0 && y > 0) return 2;
@@ -80,27 +97,55 @@ export const sortLattice = (radius) => {
     return NaN;
   };
 
-  const r2 = radius * radius;
   const points = [];
-  for (let i = 0, x = -radius; x <= radius; x++) {
-    const x2 = x * x;
-    const maxY = Math.floor(Math.sqrt(r2 - x2));
-    for (let y = -maxY; y <= maxY; y++) {
-      points[i++] = {x, y, n: x2 + y * y, q: quadrant(x, y)};
-    }
+  switch (metric) {
+    case 1:
+      for (let i = 0, x = -LATTICE_RADIUS; x <= LATTICE_RADIUS; x++) {
+        const absX = Math.abs(x);
+        const maxY = LATTICE_RADIUS - absX;
+        for (let y = -maxY; y <= maxY; y++) {
+          points[i++] = {x, y, n: absX + Math.abs(y), q: quadrant(x, y)};
+        }
+      }
+      break;
+    case 3:
+      const r3 = LATTICE_RADIUS * LATTICE_RADIUS * LATTICE_RADIUS;
+      for (let i = 0, x = -LATTICE_RADIUS; x <= LATTICE_RADIUS; x++) {
+        const x3 = Math.abs(x * x * x);
+        const maxY = Math.floor(Math.pow(Math.abs(r3 - x3), 1 / 3));
+        for (let y = -maxY; y <= maxY; y++) {
+          points[i++] = {x, y, n: x3 + Math.abs(y * y * y), q: quadrant(x, y)};
+        }
+      }
+      break;
+    case 2:
+    default:
+      const r2 = LATTICE_RADIUS * LATTICE_RADIUS;
+      for (let i = 0, x = -LATTICE_RADIUS; x <= LATTICE_RADIUS; x++) {
+        const x2 = x * x;
+        const maxY = Math.floor(Math.sqrt(r2 - x2));
+        for (let y = -maxY; y <= maxY; y++) {
+          points[i++] = {x, y, n: x2 + y * y, q: quadrant(x, y)};
+        }
+      }
   }
 
-  return points
-      .sort((A, B) => {
-        if (A.n === B.n) {
-          if (A.q === B.q) {
-            return A.y * B.x - B.y * A.x;
-          } else {
-            return A.q - B.q;
-          }
-        } else {
-          return A.n - B.n;
-        }
-      })
-      .flatMap(({x, y}) => [x, y]);
+  const compare = (A, B) => {
+    if (A.n === B.n) {
+      if (A.q === B.q) {
+        return A.y * B.x - B.y * A.x;
+      } else {
+        return A.q - B.q;
+      }
+    } else {
+      return A.n - B.n;
+    }
+  };
+
+  const sortedLattice = points.sort(compare).flatMap(({x, y}) => [x, y]);
+  setTimeout(() => {
+    localStorage[name] = JSON.stringify(sortedLattice);
+  }, 1000);
+
+  return sortedLattice;
 };

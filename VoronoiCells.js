@@ -8,21 +8,10 @@ const BORDER = Uint8ClampedArray.from([0, 0, 0]);
 // pixel offsets
 const NBR_OFFSETS = [[0, 1], [1, 0]];  // right, down
 
-// lattice radius
-const LATTICE_RADIUS = 127;
-
 // read (from localStorage) or sort lattice
 const SORTED_LATTICE = (() => {
   const start = performance.now();
-  const sortedLattice = localStorage.sortedLattice ?
-      JSON.parse(localStorage.sortedLattice) :
-      (() => {
-        const computed = sortLattice(LATTICE_RADIUS);
-        setTimeout(() => {
-          localStorage.sortedLattice = JSON.stringify(computed);
-        }, 1000);
-        return computed;
-      })();
+  const sortedLattice = sortLattice();
   const duration = performance.now() - start;
   console.log(`read or sort lattice ${duration.toFixed(1)} ms`);
   return sortedLattice;
