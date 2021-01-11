@@ -37,3 +37,21 @@ El.RESTART_BUTTON.addEventListener('click', start);
 window.addEventListener('keydown', event => {
   if (event.key === 's') start();
 });
+
+/**
+ * persist # cells and density %
+ */
+El.NUM_CELLS_INPUT.addEventListener('change', () => {
+  localStorage.voronoiMinesweeperNumCells = El.NUM_CELLS_INPUT.value;
+});
+El.DENSITY_INPUT.addEventListener('change', () => {
+  localStorage.voronoiMinesweeperDensity = El.DENSITY_INPUT.value;
+});
+
+
+/**
+ * enable changing metric via dropdown menu
+ */
+El.METRIC_SELECT.addEventListener('change', () => {
+  window.location = '?metric=' + El.METRIC_SELECT.value;
+});

@@ -9,7 +9,13 @@
   <div id="controls">
     <div id="inputs">
       # cells: <input id="numCells" type="number" value="200" min="3" max="1000">
-      density: <input id="density" type="number" value="15" min="1" max="90">%
+      density(%): <input id="density" type="number" value="15" min="1" max="90">
+      metric:
+      <select id="metric">
+        <option value="1">taxicab</option>
+        <option value="2" selected>euclidean</option>
+        <option value="3">x^3 + y^3</option>
+      </select>
     </div>
     <button id="restart" title="hotkey: s">Restart</button>
     <div id="counters">
@@ -20,6 +26,16 @@
   <div id="board">
     <center><h1>loading...</h1></center>
   </div>
+  <script>
+  (() => {
+  document.getElementById('numCells').value =
+      localStorage.voronoiMinesweeperNumCells || 200;
+  document.getElementById('density').value =
+      localStorage.voronoiMinesweeperDensity || 15;
+  document.getElementById('metric').value =
+      ({1: 1, 2: 2, 3: 3})[new URLSearchParams(location.search).get('metric')] || 2;
+  })();
+  </script>
   <script type="module" src="main.js"></script>
 </body>
 </html>

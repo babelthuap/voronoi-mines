@@ -12,6 +12,7 @@ export const El = {
   BOOM: createMessageEl('BOOM', 'boom'),
   DENSITY_INPUT: document.getElementById('density'),
   FLAGS_EL: document.getElementById('numFlags'),
+  METRIC_SELECT: document.getElementById('metric'),
   MINES_EL: document.getElementById('numMines'),
   NUM_CELLS_INPUT: document.getElementById('numCells'),
   RESTART_BUTTON: document.getElementById('restart'),
