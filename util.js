@@ -64,3 +64,39 @@ export const stopwatch = (label, fn) => {
     console.log(label, `${duration.toFixed(1)} ms`);
   });
 };
+
+// sort a lattice of points by their distance from the origin, breaking ties by
+// comparing polar angles. the output array is of the form [x0, y0, x1, y1, ...]
+export const sortLattice = (radius) => {
+  const quadrant = (x, y) => {
+    if (x > 0 && y >= 0) return 1;
+    if (x <= 0 && y > 0) return 2;
+    if (x < 0 && y <= 0) return 3;
+    if (x >= 0 && y < 0) return 4;
+    return NaN;
+  };
+
+  const r2 = radius * radius;
+  const points = [];
+  for (let i = 0, x = -radius; x <= radius; x++) {
+    const x2 = x * x;
+    const maxY = Math.floor(Math.sqrt(r2 - x2));
+    for (let y = -maxY; y <= maxY; y++) {
+      points[i++] = {x, y, n: x2 + y * y, q: quadrant(x, y)};
+    }
+  }
+
+  return points
+      .sort((A, B) => {
+        if (A.n === B.n) {
+          if (A.q === B.q) {
+            return A.y * B.x - B.y * A.x;
+          } else {
+            return A.q - B.q;
+          }
+        } else {
+          return A.n - B.n;
+        }
+      })
+      .flatMap(({x, y}) => [x, y]);
+};

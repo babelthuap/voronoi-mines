@@ -9,23 +9,20 @@ const start = () => {
     return;
   }
   stopwatch('initialize new game', () => {
+    console.log('### BEGIN INITIALIZE NEW GAME');
+    startInProgress = true;
     return new Promise((resolve) => {
-      requestAnimationFrame(() => {
-        El.BOARD_CONTAINER.innerHTML = '<center><h1>loading...</h1></center>';
-        requestAnimationFrame(() => {
-          startInProgress = true;
-          const cellGrid = new VoronoiCells();
-          const game = new Minesweeper(cellGrid);
-          requestAnimationFrame(() => startInProgress = false);
-          resolve();
-        });
-      });
+      const cellGrid = new VoronoiCells();
+      const game = new Minesweeper(cellGrid);
+      requestAnimationFrame(() => startInProgress = false);
+      resolve();
     });
   });
 };
 
 start();
 
+// listen for inputs that trigger a new game
 const handleInputKeypress = (event) => {
   if (event.key === 'Enter') start();
 };

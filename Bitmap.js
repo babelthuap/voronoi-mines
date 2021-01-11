@@ -15,7 +15,7 @@ export default function Bitmap() {
   ctx.fillStyle = '#bbb';
   ctx.fillRect(0, 0, width, height);
   let imageData = ctx.getImageData(0, 0, width, height);
-  ctx.font = `24px Arial`;
+  ctx.font = '24px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 

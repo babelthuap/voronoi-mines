@@ -2,8 +2,8 @@ import {El, rand, shuffle, stopwatch} from './util.js';
 
 
 // colors
-const CONCEALED = [187, 187, 187];
-const REVEALED = [255, 255, 255];
+const CONCEALED = Uint8ClampedArray.from([187, 187, 187]);
+const REVEALED = Uint8ClampedArray.from([255, 255, 255]);
 const BLACK = '#000';
 const NUM_COLOR_MAP = {
   1: '#00d',
