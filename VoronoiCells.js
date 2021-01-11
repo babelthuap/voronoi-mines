@@ -209,10 +209,12 @@ export default function VoronoiCells() {
         const {minY, rows} = cells[id];
         for (let i = 0; i < rows.length; i++) {
           const row = rows[i];
-          const y = i + minY;
-          for (const x of row) {
-            if (!borderPixels.has(pair(x, y))) {
-              bitmap.setPixel(x, y, color);
+          if (row !== undefined) {
+            const y = i + minY;
+            for (const x of row) {
+              if (!borderPixels.has(pair(x, y))) {
+                bitmap.setPixel(x, y, color);
+              }
             }
           }
         }
