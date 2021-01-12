@@ -110,29 +110,39 @@ body {
   z-index: 10;
 }
 
+.ease-transition {
+  transition: all .5s ease-in;
+}
+
 #highScoresPanel {
   background-color: #fff;
   border-radius: 30px;
   border: 30px solid #1faa00;
   box-shadow: 16px 16px 16px #222;
   color: black;
-  display: none;
-  left: 50%;
+  left: 100vw;
   max-height: 100vh;
   overflow-y: scroll;
   padding: 32px;
   position: fixed;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  top: 100vh;
+  transform: scale(0.01);
   z-index: 11;
 }
 
-.showHighScores #backdrop,
 .showHighScores #highScoresPanel {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transition: none;
+}
+
+.showHighScores #backdrop {
   display: block;
 }
 
 #highScoresPanel .close {
+  fill: #777;
   cursor: pointer;
   position: absolute;
   right: 32px;
@@ -148,6 +158,10 @@ table, th, td {
   border-collapse: collapse;
   padding: 5px 10px;
   text-align: left;
+}
+
+td:last-child {
+  min-width: 180px;
 }
 
 #highScoresTable .highlight {

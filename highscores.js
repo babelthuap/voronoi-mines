@@ -123,6 +123,9 @@ export const updateHighScores = (numCells, density, gameDuration) => {
   }
 };
 
+// enable animation
+El.HIGH_SCORES_PANEL.classList.add('ease-transition');
+
 // open and close panel
 El.VIEW_HIGH_SCORES.addEventListener('click', () => {
   displayHighScoresPanel(El.NUM_CELLS_INPUT.value, El.DENSITY_INPUT.value);
