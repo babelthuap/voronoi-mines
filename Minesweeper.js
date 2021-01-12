@@ -338,6 +338,13 @@ export default function Minesweeper(cellGrid) {
     }
   });
 
+  // disable pointer on game end
+  endHandlers.push(() => {
+    requestAnimationFrame(() => {
+      El.BOARD_CONTAINER.classList.remove('pointer');
+    });
+  });
+
   return {
     onStart(fn) {
       startHandlers.push(fn);
