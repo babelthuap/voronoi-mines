@@ -5,6 +5,12 @@ import {El} from './util.js';
  * individually
  */
 export default function Bitmap() {
+  // adjust board container height to not overlap controls
+  El.BOARD_CONTAINER.style.height =
+      (window.innerHeight - El.CONTROLS.offsetHeight -
+       El.SCORE_CONTAINER.offsetHeight) +
+      'px';
+
   // fill the entire container
   const width = El.BOARD_CONTAINER.offsetWidth;
   const height = El.BOARD_CONTAINER.offsetHeight;

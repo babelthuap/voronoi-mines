@@ -26,7 +26,10 @@
   <div id="board">
     <center><h1>loading...</h1></center>
   </div>
-  <div id="timer">0:00</div>
+  <div id="scoreContainer">
+    <div id="timer">0:00</div>
+    <button id="viewHighScores">View High Scores</button>
+  </div>
   <div id="backdrop"></div>
   <div id="highScoresPanel">
     <div class="close">
@@ -49,7 +52,6 @@
       <tbody id="highScoresTable"></tbody>
     </table>
   </div>
-  <button id="viewHighScores">View High Scores</button>
   <script>
   (() => {
   document.getElementById('numCells').value =

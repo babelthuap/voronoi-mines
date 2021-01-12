@@ -1,7 +1,6 @@
 html, body {
   height: 100%;
   margin: 0;
-  overflow: hidden;
   padding: 0;
 }
 
@@ -15,9 +14,8 @@ body {
   display: flex;
   font-size: 16px;
   justify-content: space-between;
-  position: relative;
+  padding: 8px;
   text-align: center;
-  margin: 8px;
 }
 
 #inputs input {
@@ -56,8 +54,7 @@ body {
 }
 
 #board {
-  height: calc(100vh - 80px);
-  margin: 0 36px 36px 36px;
+  margin: 0 36px;
   user-select: none;
 }
 
@@ -91,12 +88,30 @@ body {
   color: green;
 }
 
+#scoreContainer {
+  padding: 8px 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
 #timer {
-  bottom: 9px;
   font-size: 16px;
-  left: 50vw;
-  position: fixed;
-  transform: translateX(-50%);
+/*   left: 50vw; */
+/*   transform: translateX(-50%); */
+}
+
+#timer:before {
+  content: 'game time = ';
+}
+
+#viewHighScores {
+  background-color: #000;
+  color: #fff;
+  cursor: pointer;
+  font-family: Courier, monospace;
+  font-size: 16px;
+/*   right: 36px; */
 }
 
 #backdrop {
@@ -166,15 +181,4 @@ td:last-child {
 
 #highScoresTable .highlight {
   background-color: yellow;
-}
-
-#viewHighScores {
-  background-color: #000;
-  bottom: 6px;
-  color: #fff;
-  cursor: pointer;
-  font-family: Courier, monospace;
-  font-size: 16px;
-  position: fixed;
-  right: 36px;
 }
