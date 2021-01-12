@@ -2,8 +2,16 @@ import {createEl, El, formatMinSec} from './util.js';
 
 const highScores = localStorage.voronoiMinesweeperHighScores ?
     JSON.parse(localStorage.voronoiMinesweeperHighScores) :
-    {};
-let name = localStorage.voronoiMinesweeperName;;
+    {
+      200: {
+        15: [
+          {time: 113530, date: 1610433291132, name: 'Cyber Ronin'},
+          {time: 120703, date: 1610432637986, name: 'Cyber Ronin'},
+          {time: 133804, date: 1610433915576, name: 'Cyber Ronin'},
+        ],
+      },
+    };
+let name = localStorage.voronoiMinesweeperName;
 
 
 /**
