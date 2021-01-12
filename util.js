@@ -1,6 +1,6 @@
 // creates an element with the given text and CSS classes
-const createMessageEl = (textContent, ...classNames) => {
-  const el = document.createElement('div');
+export const createEl = (name, textContent, ...classNames) => {
+  const el = document.createElement(name);
   el.innerText = textContent;
   el.classList.add(...classNames);
   return el;
@@ -8,15 +8,22 @@ const createMessageEl = (textContent, ...classNames) => {
 
 // dom elements
 export const El = {
+  BACKDROP: document.getElementById('backdrop'),
   BOARD_CONTAINER: document.getElementById('board'),
-  BOOM: createMessageEl('BOOM', 'boom'),
+  BOOM: createEl('div', 'BOOM', 'boom'),
+  CELLS_KEY_SELECT: document.getElementById('cellsKey'),
   DENSITY_INPUT: document.getElementById('density'),
+  DENSITY_KEY_SELECT: document.getElementById('densityKey'),
   FLAGS_EL: document.getElementById('numFlags'),
+  HIGH_SCORES_PANEL: document.getElementById('highScoresPanel'),
+  HIGH_SCORES_TABLE: document.getElementById('highScoresTable'),
   METRIC_SELECT: document.getElementById('metric'),
   MINES_EL: document.getElementById('numMines'),
   NUM_CELLS_INPUT: document.getElementById('numCells'),
   RESTART_BUTTON: document.getElementById('restart'),
-  WINNER: createMessageEl('WINNER', 'winner'),
+  TIMER: document.getElementById('timer'),
+  VIEW_HIGH_SCORES: document.getElementById('viewHighScores'),
+  WINNER: createEl('div', 'WINNER', 'winner'),
 };
 
 // random int in [0, n)
@@ -31,6 +38,15 @@ export const shuffle = (arr) => {
     arr[i] = temp;
   }
   return arr;
+};
+
+// formats time as min:sec
+const SEC_PER_MS = 1 / 1000;
+const MIN_PER_SEC = 1 / 60;
+export const formatMinSec = (ms) => {
+  const sec = Math.floor(ms * SEC_PER_MS);
+  const min = Math.floor(sec * MIN_PER_SEC);
+  return `${min}:${(sec % 60).toString().padStart(2, '0')}`;
 };
 
 // distance function

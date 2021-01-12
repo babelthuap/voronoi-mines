@@ -57,10 +57,14 @@ MinesweeperData.prototype.getLabelColor = function() {
  *   - addListener(name, callback), where callback takes (event, cellId)
  */
 export default function Minesweeper(cellGrid) {
-  this.gameInProgress = true;
+  let gameInProgress = true;
+  let isFirstMove = true;
   let numFlags = 0;
   let numMines;
   let tilesLeftToReveal;
+
+  const startHandlers = [];
+  const endHandlers = [];
 
   const updateCounters = () => {
     El.FLAGS_EL.innerText = numFlags;
@@ -187,7 +191,6 @@ export default function Minesweeper(cellGrid) {
   /**
    * handles revealing a cell
    */
-  let isFirstMove = true;
   const reveal = (clickedId) => {
     const data = cellData.get(clickedId);
     if (data.isRevealed || data.isFlagged) {
@@ -198,25 +201,28 @@ export default function Minesweeper(cellGrid) {
         // don't allow player to lose on the first move
         swapMine(clickedId);
       } else {
-        this.gameInProgress = false;
+        gameInProgress = false;
         requestAnimationFrame(() => {
           data.isRevealed = true;
           renderCells(clickedId);
           El.BOARD_CONTAINER.appendChild(El.BOOM);
         });
+        endHandlers.forEach(fn => fn(false));
         return;
       }
     }
-    isFirstMove = false;
+    if (isFirstMove) {
+      isFirstMove = false;
+      startHandlers.forEach(fn => fn());
+    }
     const updatedIds = revealRecursive(clickedId);
-    requestAnimationFrame(() => {
-      renderCells(...updatedIds);
-      updateCounters();
-      if (tilesLeftToReveal === 0) {
-        this.gameInProgress = false;
-        El.BOARD_CONTAINER.appendChild(El.WINNER);
-      }
-    });
+    renderCells(...updatedIds);
+    updateCounters();
+    if (tilesLeftToReveal === 0) {
+      gameInProgress = false;
+      El.BOARD_CONTAINER.appendChild(El.WINNER);
+      endHandlers.forEach(fn => fn(true));
+    }
   };
 
   /**
@@ -296,7 +302,7 @@ export default function Minesweeper(cellGrid) {
    * handles clicks
    */
   cellGrid.addListener('mousedown', (event, cellId) => {
-    if (this.gameInProgress) {
+    if (gameInProgress) {
       // left or right click?
       if (event.button !== 0 || event.altKey || event.ctrlKey ||
           event.metaKey) {
@@ -315,4 +321,13 @@ export default function Minesweeper(cellGrid) {
       }
     }
   });
+
+  return {
+    onStart(fn) {
+      startHandlers.push(fn);
+    },
+    onEnd(fn) {
+      endHandlers.push(fn);
+    },
+  };
 }

@@ -26,6 +26,26 @@
   <div id="board">
     <center><h1>loading...</h1></center>
   </div>
+  <div id="timer">0:00</div>
+  <div id="backdrop"></div>
+  <div id="highScoresPanel">
+    <div class="close">&#x2716;</div>
+    <h1>High Scores</h1>
+    # cells: <select id="cellsKey"></select>
+    density(%): <select id="densityKey"></select>
+    <table>
+      <thead>
+        <tr>
+          <th>place</th>
+          <th>name</th>
+          <th>solve time</th>
+          <th>date</th>
+        </tr>
+      </thead>
+      <tbody id="highScoresTable"></tbody>
+    </table>
+  </div>
+  <button id="viewHighScores">View High Scores</button>
   <script>
   (() => {
   document.getElementById('numCells').value =

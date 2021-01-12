@@ -1,6 +1,44 @@
 import Minesweeper from './Minesweeper.js';
-import {El, stopwatch} from './util.js';
+import {updateHighScores, hideHighScoresPanel} from './highscores.js';
+import {createEl, El, formatMinSec, stopwatch} from './util.js';
 import VoronoiCells from './VoronoiCells.js';
+
+let timerRunning = false;
+let currentGameDuration;
+
+
+/**
+ * starts the game timer
+ */
+const startTimer = () => {
+  timerRunning = true;
+  const start = performance.now();
+  let formattedTime = '0:00';
+  const updateTimer = () => {
+    currentGameDuration = performance.now() - start;
+    let newFormattedTime = formatMinSec(currentGameDuration);
+    if (newFormattedTime !== formattedTime) {
+      El.TIMER.innerText = newFormattedTime;
+      formattedTime = newFormattedTime;
+    }
+    if (timerRunning) {
+      requestAnimationFrame(updateTimer);
+    }
+  };
+  requestAnimationFrame(updateTimer);
+};
+
+
+/**
+ * handles the end of a game
+ */
+const handleGameEnd = (win, numCells, density) => {
+  timerRunning = false;
+  if (win) {
+    updateHighScores(numCells, density, currentGameDuration);
+  }
+};
+
 
 /**
  * starts a new game
@@ -11,12 +49,22 @@ const start = () => {
     return;
   }
   startInProgress = true;
+  timerRunning = false;
+  currentGameDuration = 0;
+  hideHighScoresPanel();
   stopwatch('initialize new game', () => {
     console.log('\n### START NEW GAME ###');
     return new Promise((resolve) => {
       const cellGrid = new VoronoiCells();
       const game = new Minesweeper(cellGrid);
-      requestAnimationFrame(() => startInProgress = false);
+      game.onStart(startTimer);
+      const numCells = El.NUM_CELLS_INPUT.value;
+      const density = El.DENSITY_INPUT.value;
+      game.onEnd(win => handleGameEnd(win, numCells, density));
+      requestAnimationFrame(() => {
+        startInProgress = false;
+        El.TIMER.innerText = '0:00';
+      });
       resolve();
     });
   });
