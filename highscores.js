@@ -71,7 +71,6 @@ const displayHighScoresPanel = (numCells, density, date) => {
         const densityOption = createEl('option', d);
         densityOption.value = d;
         if (d == density) {
-          console.log(n, d);
           scoresToRender = scores;
         }
         El.DENSITY_KEY_SELECT.appendChild(densityOption);
