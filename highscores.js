@@ -5,9 +5,9 @@ const highScores = localStorage.voronoiMinesweeperHighScores ?
     {
       200: {
         15: [
-          {time: 113530, date: 1610433291132, name: 'Cyber Ronin'},
-          {time: 120703, date: 1610432637986, name: 'Cyber Ronin'},
-          {time: 133804, date: 1610433915576, name: 'Cyber Ronin'},
+          {time: 113530, date: 1610433291132, name: 'Nicholas'},
+          {time: 120703, date: 1610432637986, name: 'Nicholas'},
+          {time: 133804, date: 1610433915576, name: 'Nicholas'},
         ],
       },
     };
