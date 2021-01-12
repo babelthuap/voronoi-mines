@@ -144,6 +144,8 @@ export default function Minesweeper(cellGrid) {
           label = '💣';
         } else if (data.isFlagged) {
           label = '_';
+        } else {
+          continue;  // only need to update mines and false flags
         }
       }
       idColorLabelArr.push({
@@ -285,9 +287,13 @@ export default function Minesweeper(cellGrid) {
   });
 
   /**
-   * disables hover highlight when mouse leaves board or game ends
+   * disables hover highlight when mouse leaves board
    */
-  const handleMouseLeave = (showAllMines) => {
+
+  cellGrid.addListener('mouseleave', () => {
+    if (!gameInProgress) {
+      return;
+    }
     Promise.resolve(hoverRenderPromise).then(() => {
       const updatedIds = new Set();
       // reset old hover cells
@@ -299,16 +305,14 @@ export default function Minesweeper(cellGrid) {
           updatedIds.add(nbrId);
         }
         // re-render
-        renderCells(updatedIds, showAllMines);
+        renderCells(updatedIds);
         // reset cursor
         El.BOARD_CONTAINER.classList.remove('pointer');
         // reset hoverId
         hoverId = null;
       }
     });
-  };
-  cellGrid.addListener('mouseleave', () => handleMouseLeave(false));
-  endHandlers.push(win => handleMouseLeave(!win));
+  });
 
   /**
    * handles clicks
