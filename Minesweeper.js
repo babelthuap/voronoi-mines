@@ -134,16 +134,25 @@ export default function Minesweeper(cellGrid) {
   /**
    * renders the specified cells
    */
-  const renderCells = (...ids) => {
-    const idColorLabelArr = ids.map(id => {
+  const renderCells = (ids, showAllMines = false) => {
+    const idColorLabelArr = [];
+    for (const id of ids) {
       const data = cellData.get(id);
-      return {
+      let label = data.getLabel();
+      if (showAllMines) {
+        if (data.hasMine) {
+          label = '💣';
+        } else if (data.isFlagged) {
+          label = '_';
+        }
+      }
+      idColorLabelArr.push({
         id: id,
         color: data.getColor(),
-        label: data.getLabel(),
+        label: label,
         labelColor: data.getLabelColor(),
-      };
-    });
+      });
+    }
     cellGrid.renderCells(idColorLabelArr);
   };
 
@@ -155,7 +164,7 @@ export default function Minesweeper(cellGrid) {
     if (!data.isRevealed) {
       data.isFlagged = !data.isFlagged;
       requestAnimationFrame(() => {
-        renderCells(id);
+        renderCells([id]);
         numFlags += data.isFlagged ? 1 : -1;
         updateCounters();
       });
@@ -204,7 +213,7 @@ export default function Minesweeper(cellGrid) {
         gameInProgress = false;
         requestAnimationFrame(() => {
           data.isRevealed = true;
-          renderCells(clickedId);
+          renderCells(cellData.keys(), /* showAllMines= */ true);
           El.BOARD_CONTAINER.appendChild(El.BOOM);
         });
         endHandlers.forEach(fn => fn(false));
@@ -216,7 +225,7 @@ export default function Minesweeper(cellGrid) {
       startHandlers.forEach(fn => fn());
     }
     const updatedIds = revealRecursive(clickedId);
-    renderCells(...updatedIds);
+    renderCells(updatedIds);
     updateCounters();
     if (tilesLeftToReveal === 0) {
       gameInProgress = false;
@@ -231,7 +240,8 @@ export default function Minesweeper(cellGrid) {
   let hoverId = null;
   let hoverRenderPromise = null;
   cellGrid.addListener('mousemove', (event, cellId) => {
-    if (cellId === hoverId || cellId === null || hoverRenderPromise) {
+    if (cellId === hoverId || cellId === null || hoverRenderPromise ||
+        !gameInProgress) {
       return;
     }
     hoverRenderPromise = new Promise((resolve) => {
@@ -266,7 +276,7 @@ export default function Minesweeper(cellGrid) {
         } else {
           El.BOARD_CONTAINER.classList.add('pointer');
         }
-        renderCells(...updatedIds);
+        renderCells(updatedIds);
         hoverId = cellId;
         resolve();
         hoverRenderPromise = null;
@@ -275,9 +285,9 @@ export default function Minesweeper(cellGrid) {
   });
 
   /**
-   * disables hover highlight when mouse leaves board
+   * disables hover highlight when mouse leaves board or game ends
    */
-  cellGrid.addListener('mouseleave', () => {
+  const handleMouseLeave = (showAllMines) => {
     Promise.resolve(hoverRenderPromise).then(() => {
       const updatedIds = new Set();
       // reset old hover cells
@@ -288,36 +298,38 @@ export default function Minesweeper(cellGrid) {
           cellData.get(nbrId).hover = false;
           updatedIds.add(nbrId);
         }
+        // re-render
+        renderCells(updatedIds, showAllMines);
+        // reset cursor
+        El.BOARD_CONTAINER.classList.remove('pointer');
+        // reset hoverId
+        hoverId = null;
       }
-      // re-render
-      renderCells(...updatedIds);
-      // reset cursor
-      El.BOARD_CONTAINER.classList.remove('pointer');
-      // reset hoverId
-      hoverId = null;
     });
-  });
+  };
+  cellGrid.addListener('mouseleave', () => handleMouseLeave(false));
+  endHandlers.push(win => handleMouseLeave(!win));
 
   /**
    * handles clicks
    */
   cellGrid.addListener('mousedown', (event, cellId) => {
-    if (gameInProgress) {
-      // left or right click?
-      if (event.button !== 0 || event.altKey || event.ctrlKey ||
-          event.metaKey) {
-        flag(cellId);
+    if (!gameInProgress) {
+      return;
+    }
+    // left or right click?
+    if (event.button !== 0 || event.altKey || event.ctrlKey || event.metaKey) {
+      flag(cellId);
+    } else {
+      reveal(cellId);
+    }
+    if (hoverId !== null) {
+      // update cursor to indicate whether user can reveal cell
+      const hoverCellData = cellData.get(cellId);
+      if (hoverCellData.isRevealed || hoverCellData.isFlagged) {
+        El.BOARD_CONTAINER.classList.remove('pointer');
       } else {
-        reveal(cellId);
-      }
-      if (hoverId !== null) {
-        // update cursor to indicate whether user can reveal cell
-        const hoverCellData = cellData.get(cellId);
-        if (hoverCellData.isRevealed || hoverCellData.isFlagged) {
-          El.BOARD_CONTAINER.classList.remove('pointer');
-        } else {
-          El.BOARD_CONTAINER.classList.add('pointer');
-        }
+        El.BOARD_CONTAINER.classList.add('pointer');
       }
     }
   });
