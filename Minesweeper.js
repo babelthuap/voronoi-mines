@@ -29,7 +29,7 @@ function MinesweeperData(hasMine) {
 }
 MinesweeperData.prototype.getColor = function() {
   const color = this.isRevealed ? REVEALED : CONCEALED;
-  return this.hover ? [color[0], color[1] - 32, color[2] - 64] : color
+  return this.hover ? [color[0], color[1] - 32, color[2] - 64] : color;
 };
 MinesweeperData.prototype.getLabel = function() {
   if (this.isRevealed) {
@@ -50,6 +50,7 @@ MinesweeperData.prototype.getLabelColor = function() {
 /**
  * logic for a Minesweeper game on a grid of cells
  * the cell grid must implement:
+ *   - attachToDom()
  *   - getSize()
  *   - getIds()
  *   - getAdjacentIds(id)
@@ -346,6 +347,9 @@ export default function Minesweeper(cellGrid) {
   });
 
   return {
+    attachToDom() {
+      cellGrid.attachToDom();
+    },
     onStart(fn) {
       startHandlers.push(fn);
     },

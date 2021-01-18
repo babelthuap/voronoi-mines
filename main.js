@@ -34,11 +34,12 @@ const startTimer = () => {
  */
 const handleGameEnd = (win, numCells, density) => {
   timerRunning = false;
-  if (win) {
-    updateHighScores(numCells, density, currentGameDuration);
-  }
+  return win ? updateHighScores(numCells, density, currentGameDuration) :
+               Promise.resolve();
 };
 
+// pre-rendered next game
+let nextGame = undefined;
 
 /**
  * starts a new game
@@ -54,19 +55,29 @@ const start = () => {
   hideHighScoresPanel();
   stopwatch('initialize new game', () => {
     console.log('\n### START NEW GAME ###');
-    return new Promise((resolve) => {
-      const cellGrid = new VoronoiCells();
-      const game = new Minesweeper(cellGrid);
-      game.onStart(startTimer);
-      const numCells = El.NUM_CELLS_INPUT.value;
-      const density = El.DENSITY_INPUT.value;
-      game.onEnd(win => handleGameEnd(win, numCells, density));
-      requestAnimationFrame(() => {
-        startInProgress = false;
-        El.TIMER.innerText = '0:00';
-      });
-      resolve();
-    });
+    return (nextGame || Promise.resolve(new Minesweeper(new VoronoiCells())))
+        .then(game => {
+          nextGame = undefined;
+          game.attachToDom();
+          game.onStart(startTimer);
+          const numCells = El.NUM_CELLS_INPUT.value;
+          const density = El.DENSITY_INPUT.value;
+          game.onEnd(win => {
+            handleGameEnd(win, numCells, density).then(() => {
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                  // pre-render next game
+                  nextGame =
+                      Promise.resolve(new Minesweeper(new VoronoiCells()));
+                });
+              });
+            });
+          });
+          requestAnimationFrame(() => {
+            startInProgress = false;
+            El.TIMER.innerText = '0:00';
+          });
+        });
   });
 };
 

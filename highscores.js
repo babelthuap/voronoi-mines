@@ -101,26 +101,31 @@ export const updateHighScores = (numCells, density, gameDuration) => {
   const densities = highScores[numCells] || (highScores[numCells] = {});
   const scores = densities[density] || (densities[density] = []);
   const time = Math.round(gameDuration || 0);
-  if (scores.length < 10 || time < scores[9].time) {
-    const date = Date.now();
-    requestAnimationFrame(() => {
+  return new Promise(resolve => {
+    if (scores.length < 10 || time < scores[9].time) {
+      const date = Date.now();
       requestAnimationFrame(() => {
-        if (!name) {
-          name = prompt('your name?');
-        }
-        if (name) {
-          localStorage.voronoiMinesweeperName = name;
-        }
-        scores.push({time, date, name: name || '[anonymous]'});
-        scores.sort((a, b) => (a.time - b.time) || (a.date - b.date));
-        if (scores.length > 10) {
-          scores.length = 10;
-        }
-        displayHighScoresPanel(numCells, density, date);
-        localStorage.voronoiMinesweeperHighScores = JSON.stringify(highScores);
+        requestAnimationFrame(() => {
+          if (!name) {
+            name = prompt('your name?');
+          }
+          if (name) {
+            localStorage.voronoiMinesweeperName = name;
+          }
+          scores.push({time, date, name: name || '[anonymous]'});
+          scores.sort((a, b) => (a.time - b.time) || (a.date - b.date));
+          if (scores.length > 10) {
+            scores.length = 10;
+          }
+          displayHighScoresPanel(numCells, density, date);
+          localStorage.voronoiMinesweeperHighScores =
+              JSON.stringify(highScores);
+
+          resolve();
+        });
       });
-    });
-  }
+    }
+  });
 };
 
 // enable animation

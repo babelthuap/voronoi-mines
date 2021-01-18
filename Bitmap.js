@@ -27,10 +27,6 @@ export default function Bitmap() {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
-  // attach to dom
-  [...El.BOARD_CONTAINER.children].forEach((child) => child.remove());
-  El.BOARD_CONTAINER.appendChild(canvas);
-
   // disable context menu so we can handle right click
   canvas.addEventListener('contextmenu', (event) => {
     event.preventDefault();
@@ -45,6 +41,11 @@ export default function Bitmap() {
 
     get height() {
       return height;
+    },
+
+    attachToDom() {
+      [...El.BOARD_CONTAINER.children].forEach((child) => child.remove());
+      El.BOARD_CONTAINER.appendChild(canvas);
     },
 
     repaint() {

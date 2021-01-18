@@ -32,7 +32,6 @@ export default function VoronoiCells() {
 
     const numCells = parseInt(El.NUM_CELLS_INPUT.value);
     const cells = new Array(numCells);
-    ;
     const centers = new Set();
     for (let i = 0; i < numCells; i++) {
       let x = rand(width);
@@ -198,6 +197,10 @@ export default function VoronoiCells() {
 
     getAdjacentIds(id) {
       return [...cells[id].neighbors];
+    },
+
+    attachToDom() {
+      bitmap.attachToDom();
     },
 
     renderCells(idColorLabelArr) {
