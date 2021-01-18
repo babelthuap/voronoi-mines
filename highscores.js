@@ -95,14 +95,14 @@ export const hideHighScoresPanel = () => {
 
 
 /**
- * updatesthe high scores
+ * updates the high scores
  */
 export const updateHighScores = (numCells, density, gameDuration) => {
   const densities = highScores[numCells] || (highScores[numCells] = {});
   const scores = densities[density] || (densities[density] = []);
   const time = Math.round(gameDuration || 0);
-  return new Promise(resolve => {
-    if (scores.length < 10 || time < scores[9].time) {
+  if (scores.length < 10 || time < scores[9].time) {
+    return new Promise(resolve => {
       const date = Date.now();
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -120,12 +120,13 @@ export const updateHighScores = (numCells, density, gameDuration) => {
           displayHighScoresPanel(numCells, density, date);
           localStorage.voronoiMinesweeperHighScores =
               JSON.stringify(highScores);
-
           resolve();
         });
       });
-    }
-  });
+    });
+  } else {
+    return Promise.resolve();
+  }
 };
 
 // enable animation
