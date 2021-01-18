@@ -88,17 +88,18 @@ export default function Minesweeper(cellGrid) {
     }
     shuffle(mineIndices);
     // assign mine info while constructing the cell data map
-    const cellData = new Map();
+    const cellData = [];
     let i = 0;
-    for (const id of cellGrid.getIds()) {
+    for (let id = 0; id < cellGrid.getSize(); id++) {
       const hasMine = mineIndices[i++];
       const data = new MinesweeperData(hasMine);
-      cellData.set(id, data);
+      cellData[id] = data;
     }
     // init cell labels
-    for (const [id, data] of cellData) {
+    for (let id = 0; id < cellData.length; id++) {
+      const data = cellData[id];
       for (const nbrId of cellGrid.getAdjacentIds(id)) {
-        if (cellData.get(nbrId).hasMine) {
+        if (cellData[nbrId].hasMine) {
           data.adjacentMines++;
         }
       }
@@ -114,16 +115,17 @@ export default function Minesweeper(cellGrid) {
     let numOpenTiles = cellGrid.getSize() - numMines;
     let indexToSwap = rand(numOpenTiles);
     let i = 0;
-    for (const [id, data] of cellData.entries()) {
+    for (let id = 0; id < cellData.length; id++) {
+      const data = cellData[id];
       if (!data.hasMine) {
         if (i === indexToSwap) {
           data.hasMine = true;
           for (const nbrId of cellGrid.getAdjacentIds(id)) {
-            cellData.get(nbrId).adjacentMines++;
+            cellData[nbrId].adjacentMines++;
           }
-          cellData.get(originalId).hasMine = false;
+          cellData[originalId].hasMine = false;
           for (const nbrId of cellGrid.getAdjacentIds(originalId)) {
-            cellData.get(nbrId).adjacentMines--;
+            cellData[nbrId].adjacentMines--;
           }
           return;
         }
@@ -138,7 +140,7 @@ export default function Minesweeper(cellGrid) {
   const renderCells = (ids, showAllMines = false) => {
     const idColorLabelArr = [];
     for (const id of ids) {
-      const data = cellData.get(id);
+      const data = cellData[id];
       let label = data.getLabel();
       if (showAllMines) {
         if (data.hasMine) {
@@ -163,7 +165,7 @@ export default function Minesweeper(cellGrid) {
    * toggles flag on a cell
    */
   const flag = (id) => {
-    const data = cellData.get(id);
+    const data = cellData[id];
     if (!data.isRevealed) {
       data.isFlagged = !data.isFlagged;
       requestAnimationFrame(() => {
@@ -178,7 +180,7 @@ export default function Minesweeper(cellGrid) {
    * rock raiders (recursive helper for `reveal`)
    */
   const revealRecursive = (id, updatedIds = new Set()) => {
-    const data = cellData.get(id);
+    const data = cellData[id];
     if (data.isRevealed) {
       return;
     }
@@ -204,7 +206,7 @@ export default function Minesweeper(cellGrid) {
    * handles revealing a cell
    */
   const reveal = (clickedId) => {
-    const data = cellData.get(clickedId);
+    const data = cellData[clickedId];
     if (data.isRevealed || data.isFlagged) {
       return;
     }
@@ -251,19 +253,19 @@ export default function Minesweeper(cellGrid) {
       const updatedIds = new Set();
       // reset old hover cells
       if (hoverId !== null) {
-        cellData.get(hoverId).hover = false;
+        cellData[hoverId].hover = false;
         updatedIds.add(hoverId);
         for (const nbrId of cellGrid.getAdjacentIds(hoverId)) {
-          cellData.get(nbrId).hover = false;
+          cellData[nbrId].hover = false;
           updatedIds.add(nbrId);
         }
       }
       // highlight new hover cells
-      const hoverCellData = cellData.get(cellId);
+      const hoverCellData = cellData[cellId];
       hoverCellData.hover = true;
       updatedIds.add(cellId);
       for (const nbrId of cellGrid.getAdjacentIds(cellId)) {
-        cellData.get(nbrId).hover = true;
+        cellData[nbrId].hover = true;
         if (updatedIds.has(nbrId)) {
           // we just un-highlighted and are now trying to re-highlight. the net
           // effect is to do nothing; hence, no need to update this cell.
@@ -299,10 +301,10 @@ export default function Minesweeper(cellGrid) {
       const updatedIds = new Set();
       // reset old hover cells
       if (hoverId !== null) {
-        cellData.get(hoverId).hover = false;
+        cellData[hoverId].hover = false;
         updatedIds.add(hoverId);
         for (const nbrId of cellGrid.getAdjacentIds(hoverId)) {
-          cellData.get(nbrId).hover = false;
+          cellData[nbrId].hover = false;
           updatedIds.add(nbrId);
         }
         // re-render
@@ -330,7 +332,7 @@ export default function Minesweeper(cellGrid) {
     }
     if (hoverId !== null) {
       // update cursor to indicate whether user can reveal cell
-      const hoverCellData = cellData.get(cellId);
+      const hoverCellData = cellData[cellId];
       if (hoverCellData.isRevealed || hoverCellData.isFlagged) {
         El.BOARD_CONTAINER.classList.remove('pointer');
       } else {

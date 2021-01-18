@@ -1,5 +1,5 @@
 import Bitmap from './Bitmap.js';
-import {calculateBorderGuesses, dist, El, pair, rand, sortLattice, unpair} from './util.js';
+import {calculateBorderGuesses, dist, El, pair, rand, sortLattice} from './util.js';
 
 
 // color
@@ -218,10 +218,10 @@ export default function VoronoiCells() {
       let num = 0;
       let xTotal = 0;
       let yTotal = 0;
-      for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
+      for (let dy = 0; dy < rows.length; dy++) {
+        const row = rows[dy];
         if (row !== undefined) {
-          const y = i + minY;
+          const y = minY + dy;
           num += row.length;
           xTotal += row.length * (row.length + 2 * row[0] - 1) / 2;
           yTotal += y * row.length;
@@ -243,7 +243,7 @@ export default function VoronoiCells() {
     },
 
     getAdjacentIds(id) {
-      return [...cells[id].neighbors];
+      return cells[id].neighbors;
     },
 
     attachToDom() {
@@ -252,15 +252,16 @@ export default function VoronoiCells() {
 
     renderCells(idColorLabelArr) {
       // color backgrounds
-      for (const {id, color} of idColorLabelArr) {
+      for (let i = 0; i < idColorLabelArr.length; i++) {
+        const {id, color} = idColorLabelArr[i];
         const {minY, rows} = cells[id];
         for (let dy = 0; dy < rows.length; dy++) {
           const row = rows[dy];
           if (row !== undefined) {
             const y = minY + dy;
             const rowOffset = width * y;
-            for (let i = 0; i < row.length; i++) {
-              const pixelIndex = rowOffset + row[i];
+            for (let j = 0; j < row.length; j++) {
+              const pixelIndex = rowOffset + row[j];
               if (!borderPixels.has(pixelIndex)) {
                 bitmap.setPixel(pixelIndex, color);
               }
@@ -272,7 +273,8 @@ export default function VoronoiCells() {
 
       // print labels, if necessary
       let labelPrinted = false;
-      for (const {id, label, labelColor} of idColorLabelArr) {
+      for (let i = 0; i < idColorLabelArr.length; i++) {
+        const {id, label, labelColor} = idColorLabelArr[i];
         if (label) {
           const [x, y] = cells[id].geometricCenter;
           bitmap.fillText(label, labelColor, x, y);

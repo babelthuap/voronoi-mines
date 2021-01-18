@@ -90,8 +90,7 @@ export const calculateBorderGuesses = (width, height, numCells) => {
   if (borderGuesses !== undefined) {
     return borderGuesses;
   }
-  const expectedCellsPerRow =
-      Math.floor(Math.sqrt(width * numCells / height));
+  const expectedCellsPerRow = Math.floor(Math.sqrt(width * numCells / height));
   borderGuesses = new Array(expectedCellsPerRow);
   for (let i = 0; i < expectedCellsPerRow; i++) {
     borderGuesses[i] = Math.round((i + 1) * width / expectedCellsPerRow) - 1;
