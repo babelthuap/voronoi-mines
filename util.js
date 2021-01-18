@@ -79,19 +79,57 @@ export const dist = (metric == 1) ?
 // store two positive shorts in one int
 // technically, x in [0, 2**16), y in [0, 2**15)
 const MASK = 2 ** 15 - 1;
-export const pair = (x, y) => (x << 15) + y;
+export const pair = (x, y) => (x << 15) | y;
 export const unpair = n => [n >> 15, n & MASK];
 
-/**
- * times the execution of a function
- */
-export const stopwatch = (label, fn) => {
-  const start = performance.now();
-  Promise.resolve(fn()).then(() => {
-    const duration = performance.now() - start;
-    console.log(label, `${duration.toFixed(1)} ms`);
-  });
+// guesses for the locations of cell borders
+const borderGuessesMemo = new Map();
+export const calculateBorderGuesses = (width, height, numCells) => {
+  const key = `${width},${height},${numCells}`;
+  let borderGuesses = borderGuessesMemo.get(key);
+  if (borderGuesses !== undefined) {
+    return borderGuesses;
+  }
+  const expectedCellsPerRow =
+      Math.floor(Math.sqrt(width * numCells / height));
+  borderGuesses = new Array(expectedCellsPerRow);
+  for (let i = 0; i < expectedCellsPerRow; i++) {
+    borderGuesses[i] = Math.round((i + 1) * width / expectedCellsPerRow) - 1;
+  }
+  borderGuessesMemo.set(key, borderGuesses);
+  return borderGuesses;
 };
+
+/** smallest color offsets */
+function ColorOffsets() {
+  const r = 0x010000;
+  const g = 0x000100;
+  const b = 0x000001;
+  const offsets = [0];
+  let maxSetIndex = 0;
+  this.get = function(numDistinct) {
+    while (offsets.length < numDistinct) {
+      // generate more
+      const next = new Set();
+      for (let i = maxSetIndex; i < offsets.length; i++) {
+        const color = offsets[i];
+        next.add(color + r);
+        next.add(color + g);
+        next.add(color + b);
+      }
+      maxSetIndex = offsets.length;
+      offsets.push(...next);
+    }
+    return offsets;
+  };
+}
+
+export const colorOffsets = new ColorOffsets();
+
+export const HEX_MASK = 0xff;
+export const hexToRgb =
+    (hex) => [hex >> 16, (hex >> 8) & HEX_MASK, hex & HEX_MASK];
+export const rgbToHex = (rgb) => (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
 
 /**
  * sorts a lattice of points by their distance from the origin, breaking ties by
@@ -103,9 +141,6 @@ export const sortLattice = () => {
   const serialized = localStorage[name];
   if (serialized) {
     return JSON.parse(serialized);
-  } else {
-    // clean up old version
-    localStorage.removeItem('sortedLattice');
   }
 
   const quadrant = (x, y) => {

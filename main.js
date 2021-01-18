@@ -1,6 +1,6 @@
 import Minesweeper from './Minesweeper.js';
 import {updateHighScores, hideHighScoresPanel} from './highscores.js';
-import {createEl, El, formatMinSec, stopwatch} from './util.js';
+import {createEl, El, formatMinSec} from './util.js';
 import VoronoiCells from './VoronoiCells.js';
 
 let timerRunning = false;
@@ -53,36 +53,47 @@ const start = () => {
   timerRunning = false;
   currentGameDuration = 0;
   hideHighScoresPanel();
-  stopwatch('initialize new game', () => {
-    console.log('\n### START NEW GAME ###');
-    return (nextGame || Promise.resolve(new Minesweeper(new VoronoiCells())))
-        .then(game => {
-          nextGame = undefined;
-          game.attachToDom();
-          game.onStart(startTimer);
-          const numCells = El.NUM_CELLS_INPUT.value;
-          const density = El.DENSITY_INPUT.value;
-          game.onEnd(win => {
-            handleGameEnd(win, numCells, density).then(() => {
+  return (nextGame || Promise.resolve(new Minesweeper(new VoronoiCells())))
+      .then(game => {
+        nextGame = undefined;
+        game.attachToDom();
+        game.onStart(startTimer);
+        const numCells = El.NUM_CELLS_INPUT.value;
+        const density = El.DENSITY_INPUT.value;
+        game.onEnd(win => {
+          handleGameEnd(win, numCells, density).then(() => {
+            requestAnimationFrame(() => {
               requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                  // pre-render next game
-                  nextGame =
-                      Promise.resolve(new Minesweeper(new VoronoiCells()));
-                });
+                // pre-render next game
+                nextGame = Promise.resolve(new Minesweeper(new VoronoiCells()));
               });
             });
           });
-          requestAnimationFrame(() => {
-            startInProgress = false;
-            El.TIMER.innerText = '0:00';
-          });
         });
-  });
+        requestAnimationFrame(() => {
+          startInProgress = false;
+          El.TIMER.innerText = '0:00';
+        });
+      });
 };
 
 // initialize the first game on page load
 start();
+
+
+// TEST
+// setTimeout(() => {
+//   let times = [];
+//   for (let i = 0; i < 25; i++) {
+//     let s = performance.now();
+//     new VoronoiCells();
+//     times.push(performance.now() - s);
+//   }
+//   console.log('times:', times);
+//   console.log(
+//       'avg', (times.reduce((sum, t) => sum + t, 0) / times.length).toFixed(0));
+// }, 10);
+
 
 /**
  * listen for inputs that trigger a new game

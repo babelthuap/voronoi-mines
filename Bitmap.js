@@ -56,8 +56,8 @@ export default function Bitmap() {
       imageData = ctx.getImageData(0, 0, width, height);
     },
 
-    setPixel(x, y, rgb) {
-      const red = 4 * (x + width * y);
+    setPixel(pixelIndex, rgb) {
+      const red = pixelIndex << 2;
       imageData.data[red] = rgb[0];
       imageData.data[red + 1] = rgb[1];
       imageData.data[red + 2] = rgb[2];
