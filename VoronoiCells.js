@@ -1,13 +1,13 @@
 import Bitmap from './Bitmap.js';
-import {calculateBorderGuesses, dist, El, pair, rand, sortLattice} from './util.js';
+import {calculateBorderGuesses, dist, El, hexToRgb, pair, rand, rgbToHex, sortLattice} from './util.js';
 
 // reuse these across instances to reduce garbage collection time
-const borderSet = new Set();
 let cellsArray;
 let pixelsArray;
 
 // color
-const BORDER = Uint8ClampedArray.from([0, 0, 0]);
+const BORDER_HEX = rgbToHex(1, 1, 1);
+const BORDER_RGB = Uint8ClampedArray.from(hexToRgb(BORDER_HEX));
 
 // read (from localStorage) or sort lattice
 const SORTED_LATTICE = (() => {
@@ -181,22 +181,18 @@ export default function VoronoiCells() {
   })();
 
   // draw borders, detect neighbors, calculate cell rows
-  const borderPixels = (() => {
-    borderSet.clear();
-    const borderPixels = borderSet;
+  (() => {
     // extract this to make it maybe faster
     const checkNeighborsAndBorders = (pixelIndex, id, cell) => {
       const rightNbrId = coordsToCellId[pixelIndex + 1];
       if (rightNbrId !== id) {
-        borderPixels.add(pixelIndex);
-        bitmap.setPixel(pixelIndex, BORDER);
+        bitmap.setPixel(pixelIndex, BORDER_RGB);
         cell.neighbors.add(rightNbrId);
         cells[rightNbrId].neighbors.add(id);
       }
       const bottomNbrId = coordsToCellId[pixelIndex + width];
       if (bottomNbrId !== id) {
-        borderPixels.add(pixelIndex);
-        bitmap.setPixel(pixelIndex, BORDER);
+        bitmap.setPixel(pixelIndex, BORDER_RGB);
         cell.neighbors.add(bottomNbrId);
         cells[bottomNbrId].neighbors.add(id);
       }
@@ -220,14 +216,13 @@ export default function VoronoiCells() {
     }
     // right edge
     for (let index = width - 1; index < width * height; index += width) {
-      bitmap.setPixel(index, BORDER);
+      bitmap.setPixel(index, BORDER_RGB);
     }
     // bottom edge
     for (let index = width * (height - 1); index < width * height; index++) {
-      bitmap.setPixel(index, BORDER);
+      bitmap.setPixel(index, BORDER_RGB);
     }
     bitmap.repaint();
-    return borderPixels;
   })();
 
   console.log(`initial render: ${
@@ -280,7 +275,7 @@ export default function VoronoiCells() {
             const rowOffset = width * y;
             for (let j = 0; j < row.length; j++) {
               const pixelIndex = rowOffset + row[j];
-              if (!borderPixels.has(pixelIndex)) {
+              if (bitmap.getPixel(pixelIndex) !== BORDER_HEX) {
                 bitmap.setPixel(pixelIndex, color);
               }
             }

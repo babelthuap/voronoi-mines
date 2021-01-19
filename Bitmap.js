@@ -1,4 +1,4 @@
-import {El} from './util.js';
+import {El, rgbToHex} from './util.js';
 
 /**
  * a canvas that fills the board container and whose pixels can be written to
@@ -23,6 +23,7 @@ export default function Bitmap() {
   ctx.fillStyle = '#bbb';
   ctx.fillRect(0, 0, width, height);
   let imageData = ctx.getImageData(0, 0, width, height);
+  let data = imageData.data;
   ctx.font = '24px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -54,13 +55,19 @@ export default function Bitmap() {
 
     rasterize() {
       imageData = ctx.getImageData(0, 0, width, height);
+      data = imageData.data;
+    },
+
+    getPixel(pixelIndex) {
+      const red = pixelIndex << 2;
+      return rgbToHex(data[red], data[red + 1], data[red + 2]);
     },
 
     setPixel(pixelIndex, rgb) {
       const red = pixelIndex << 2;
-      imageData.data[red] = rgb[0];
-      imageData.data[red + 1] = rgb[1];
-      imageData.data[red + 2] = rgb[2];
+      data[red] = rgb[0];
+      data[red + 1] = rgb[1];
+      data[red + 2] = rgb[2];
     },
 
     fillText(text, color, x, y) {
