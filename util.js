@@ -139,11 +139,7 @@ export const sortLattice = () => {
   const name = 'sortedLattice' + metric;
   const serialized = localStorage[name];
   if (serialized) {
-    if (!serialized.startsWith('0,')) {
-      localStorage.removeItem(name);
-    } else {
-      return Int8Array.from(JSON.parse('[' + serialized + ']'));
-    }
+    return Int8Array.from(JSON.parse(serialized));
   }
 
   const quadrant = (x, y) => {
@@ -208,7 +204,7 @@ export const sortLattice = () => {
   }
 
   setTimeout(() => {
-    localStorage[name] = sortedLatticeFlat;
+    localStorage[name] = '[' + sortedLatticeFlat.toString() + ']';
   }, 1000);
 
   return sortedLatticeFlat;
