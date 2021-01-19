@@ -1,13 +1,13 @@
 import Bitmap from './Bitmap.js';
-import {calculateBorderGuesses, dist, El, hexToRgb, pair, rand, rgbToHex, sortLattice} from './util.js';
+import {calculateBorderGuesses, dist, El, pair, rand, sortLattice} from './util.js';
 
 // reuse these across instances to reduce garbage collection time
 let cellsArray;
 let pixelsArray;
 
 // color
-const BORDER_HEX = rgbToHex(1, 1, 1);
-const BORDER_RGB = Uint8ClampedArray.from(hexToRgb(BORDER_HEX));
+const BORDER_RGB = Uint8ClampedArray.of(0, 0, 0);
+const BORDER_R = BORDER_RGB[0];
 
 // read (from localStorage) or sort lattice
 const SORTED_LATTICE = (() => {
@@ -275,7 +275,7 @@ export default function VoronoiCells() {
             const rowOffset = width * y;
             for (let j = 0; j < row.length; ++j) {
               const pixelIndex = rowOffset + row[j];
-              if (bitmap.getPixel(pixelIndex) !== BORDER_HEX) {
+              if (bitmap.getPixelR(pixelIndex) !== BORDER_R) {
                 bitmap.setPixel(pixelIndex, color);
               }
             }

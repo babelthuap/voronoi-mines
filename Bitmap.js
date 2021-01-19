@@ -58,9 +58,8 @@ export default function Bitmap() {
       data = imageData.data;
     },
 
-    getPixel(pixelIndex) {
-      const red = pixelIndex << 2;
-      return rgbToHex(data[red], data[red + 1], data[red + 2]);
+    getPixelR(pixelIndex) {
+      return data[pixelIndex << 2];
     },
 
     setPixel(pixelIndex, rgb) {

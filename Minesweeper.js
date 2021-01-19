@@ -2,9 +2,9 @@ import {El, rand, shuffle} from './util.js';
 
 
 // colors
-const CONCEALED = Uint8ClampedArray.from([187, 187, 187]);
-const REVEALED = Uint8ClampedArray.from([255, 255, 255]);
-const BLACK = '#000';
+const CONCEALED = Uint8ClampedArray.of(187, 187, 187);
+const REVEALED = Uint8ClampedArray.of(255, 255, 255);
+const DEFAULT_LABEL_COLOR = '#010000';  // because R=0 is reserved for borders
 const NUM_COLOR_MAP = {
   1: '#00d',
   2: '#0b0',
@@ -40,9 +40,9 @@ MinesweeperData.prototype.getLabel = function() {
 };
 MinesweeperData.prototype.getLabelColor = function() {
   if (this.isRevealed && !this.hasMine) {
-    return NUM_COLOR_MAP[this.adjacentMines] || BLACK;
+    return NUM_COLOR_MAP[this.adjacentMines] || DEFAULT_LABEL_COLOR;
   } else {
-    return BLACK;
+    return DEFAULT_LABEL_COLOR;
   }
 };
 
