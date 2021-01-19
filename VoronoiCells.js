@@ -1,6 +1,10 @@
 import Bitmap from './Bitmap.js';
 import {calculateBorderGuesses, dist, El, pair, rand, sortLattice} from './util.js';
 
+// reuse these across instances to reduce garbage collection time
+const borderSet = new Set();
+let cellsArray;
+let pixelsArray;
 
 // color
 const BORDER = Uint8ClampedArray.from([0, 0, 0]);
@@ -94,15 +98,22 @@ export default function VoronoiCells() {
   // place cells
   const cells = (() => {
     const numCells = parseInt(El.NUM_CELLS_INPUT.value);
-    const cells = new Array(numCells);
+    if (cellsArray === undefined) {
+      cellsArray = new Array(numCells);
+    } else if (cellsArray.length !== numCells) {
+      cellsArray.length = numCells;
+    }
+    const cells = cellsArray;
     const centers = new Set();
+    // thirds - so we don't place cells in adjacent pixels
+    const w = Math.ceil(width / 3);
+    const h = Math.ceil(height / 3);
     for (let id = 0; id < numCells; id++) {
-      let x = rand(width);
-      let y = rand(height);
-      while (centers.has(pair(x, y))) {
-        x = rand(width);
-        y = rand(height);
-      }
+      let x, y;
+      do {
+        x = rand(w) * 3;
+        y = rand(h) * 3;
+      } while (centers.has(pair(x, y)));
       centers.add(pair(x, y));
       cells[id] = {
         x,
@@ -118,7 +129,17 @@ export default function VoronoiCells() {
 
   // partition cells
   const coordsToCellId = (() => {
-    const coordsToCellId = new Array(height * width);
+    const numPixels = height * width;
+    if (pixelsArray === undefined) {
+      pixelsArray = new Array(numPixels);
+    } else {
+      const oldLength = pixelsArray.length;
+      if (pixelsArray.length !== numPixels) {
+        pixelsArray.length = numPixels;
+      }
+      pixelsArray.fill(undefined, 0, oldLength);
+    }
+    const coordsToCellId = pixelsArray;
 
     // expanding circles method
     const thisSeemsToWork =
@@ -161,7 +182,8 @@ export default function VoronoiCells() {
 
   // draw borders, detect neighbors, calculate cell rows
   const borderPixels = (() => {
-    const borderPixels = new Set();
+    borderSet.clear();
+    const borderPixels = borderSet;
     // extract this to make it maybe faster
     const checkNeighborsAndBorders = (pixelIndex, id, cell) => {
       const rightNbrId = coordsToCellId[pixelIndex + 1];
@@ -236,10 +258,6 @@ export default function VoronoiCells() {
   return {
     getSize() {
       return cells.length;
-    },
-
-    getIds() {
-      return cells.map((_, i) => i);
     },
 
     getAdjacentIds(id) {
