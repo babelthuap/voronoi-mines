@@ -120,7 +120,7 @@ export default function VoronoiCells() {
         y,
         minY: undefined,
         rows: [],
-        neighbors: [],
+        neighbors: new Set(),
         geometricCenter: new Array(2),
       };
     }
@@ -182,11 +182,11 @@ export default function VoronoiCells() {
 
   // draw borders, detect neighbors, calculate cell rows
   (() => {
-    const neighbors = cells.map(() => new Map());
+    const neighborMaps = cells.map(() => new Map());
 
     // require two shared border pixels to be confirmed as a neighbor
     const addNbr = (id, nbrId) => {
-      const nbrMap = neighbors[id];
+      const nbrMap = neighborMaps[id];
       switch (nbrMap.get(nbrId)) {
         case undefined:
           nbrMap.set(nbrId, false /* confirmed */);
@@ -205,13 +205,11 @@ export default function VoronoiCells() {
       if (rightNbrId !== id) {
         bitmap.setPixel(pixelIndex, BORDER_RGB);
         addNbr(id, rightNbrId);
-        addNbr(rightNbrId, id);
       }
       const bottomNbrId = coordsToCellId[pixelIndex + width];
       if (bottomNbrId !== id) {
         bitmap.setPixel(pixelIndex, BORDER_RGB);
         addNbr(id, bottomNbrId);
-        addNbr(bottomNbrId, id);
       }
     };
     for (let y = 0; y < height - 1; y++) {
@@ -231,12 +229,13 @@ export default function VoronoiCells() {
         cellRow.push(x);
       }
     }
-    for (let id = 0; id < neighbors.length; id++) {
+    for (let id = 0; id < neighborMaps.length; id++) {
       const cell = cells[id];
-      const nbrMap = neighbors[id];
+      const nbrMap = neighborMaps[id];
       for (const [nbrId, confirmed] of nbrMap.entries()) {
         if (confirmed) {
-          cell.neighbors.push(nbrId);
+          cell.neighbors.add(nbrId);
+          cells[nbrId].neighbors.add(id);
         }
       }
     }
