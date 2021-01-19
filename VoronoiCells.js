@@ -24,7 +24,7 @@ const findClosestCell = (pixelIndex, width, cells) => {
   const y = (pixelIndex - x) / width;
   let closestCellIndex;
   let minDist = Infinity;
-  for (let i = 0; i < cells.length; i++) {
+  for (let i = 0; i < cells.length; ++i) {
     const cell = cells[i];
     const d = dist(x, y, cell.x, cell.y);
     if (d < minDist) {
@@ -50,12 +50,12 @@ const renderRow =
         // make an educated guess about where the next cell will be
         while (rowOffset + borderGuesses[guessI] <= left &&
                guessI < borderGuesses.length - 1) {
-          guessI++;
+          ++guessI;
         }
         let right = rowOffset + borderGuesses[guessI];
         while (getOrCalculatePixel(right) === cellIndex &&
                guessI < borderGuesses.length - 1) {
-          guessI++;
+          ++guessI;
           right = rowOffset + borderGuesses[guessI];
         }
 
@@ -76,7 +76,7 @@ const renderRow =
         }
 
         // fill line of same-color pixels
-        for (let pixelIndex = left; pixelIndex <= right; pixelIndex++) {
+        for (let pixelIndex = left; pixelIndex <= right; ++pixelIndex) {
           coordsToCellId[pixelIndex] = cellIndex;
         }
 
@@ -108,7 +108,7 @@ export default function VoronoiCells() {
     // thirds - so we don't place cells in adjacent pixels
     const w = Math.ceil(width / 3);
     const h = Math.ceil(height / 3);
-    for (let id = 0; id < numCells; id++) {
+    for (let id = 0; id < numCells; ++id) {
       let x, y;
       do {
         x = rand(w) * 3;
@@ -148,7 +148,7 @@ export default function VoronoiCells() {
     for (let i = 0; i < expandArea; i += 2) {
       const dx = SORTED_LATTICE[i];
       const dy = SORTED_LATTICE[i + 1];
-      for (let id = 0; id < cells.length; id++) {
+      for (let id = 0; id < cells.length; ++id) {
         const cell = cells[id];
         const y = cell.y + dy;
         if (y < height && y >= 0) {
@@ -172,7 +172,7 @@ export default function VoronoiCells() {
               findClosestCell(pixelIndex, width, cells) :
           cellIndex;
     };
-    for (let y = 0; y < height; y++) {
+    for (let y = 0; y < height; ++y) {
       renderRow(
           y, width, borderGuesses, cells, coordsToCellId, getOrCalculatePixel);
     }
@@ -197,9 +197,9 @@ export default function VoronoiCells() {
         cells[bottomNbrId].neighbors.add(id);
       }
     };
-    for (let y = 0; y < height - 1; y++) {
+    for (let y = 0; y < height - 1; ++y) {
       const rowOffset = width * y;
-      for (let x = 0; x < width - 1; x++) {
+      for (let x = 0; x < width - 1; ++x) {
         const pixelIndex = rowOffset + x;
         const id = coordsToCellId[pixelIndex];
         const cell = cells[id];
@@ -219,7 +219,7 @@ export default function VoronoiCells() {
       bitmap.setPixel(index, BORDER_RGB);
     }
     // bottom edge
-    for (let index = width * (height - 1); index < width * height; index++) {
+    for (let index = width * (height - 1); index < width * height; ++index) {
       bitmap.setPixel(index, BORDER_RGB);
     }
     bitmap.repaint();
@@ -230,12 +230,12 @@ export default function VoronoiCells() {
 
   // calculate geometric centers
   requestAnimationFrame(() => {
-    for (let id = 0; id < cells.length; id++) {
+    for (let id = 0; id < cells.length; ++id) {
       const {minY, rows, geometricCenter} = cells[id];
       let num = 0;
       let xTotal = 0;
       let yTotal = 0;
-      for (let dy = 0; dy < rows.length; dy++) {
+      for (let dy = 0; dy < rows.length; ++dy) {
         const row = rows[dy];
         if (row !== undefined) {
           const y = minY + dy;
@@ -265,15 +265,15 @@ export default function VoronoiCells() {
 
     renderCells(idColorLabelArr) {
       // color backgrounds
-      for (let i = 0; i < idColorLabelArr.length; i++) {
+      for (let i = 0; i < idColorLabelArr.length; ++i) {
         const {id, color} = idColorLabelArr[i];
         const {minY, rows} = cells[id];
-        for (let dy = 0; dy < rows.length; dy++) {
+        for (let dy = 0; dy < rows.length; ++dy) {
           const row = rows[dy];
           if (row !== undefined) {
             const y = minY + dy;
             const rowOffset = width * y;
-            for (let j = 0; j < row.length; j++) {
+            for (let j = 0; j < row.length; ++j) {
               const pixelIndex = rowOffset + row[j];
               if (bitmap.getPixel(pixelIndex) !== BORDER_HEX) {
                 bitmap.setPixel(pixelIndex, color);
@@ -286,7 +286,7 @@ export default function VoronoiCells() {
 
       // print labels, if necessary
       let labelPrinted = false;
-      for (let i = 0; i < idColorLabelArr.length; i++) {
+      for (let i = 0; i < idColorLabelArr.length; ++i) {
         const {id, label, labelColor} = idColorLabelArr[i];
         if (label) {
           const [x, y] = cells[id].geometricCenter;

@@ -52,7 +52,6 @@ MinesweeperData.prototype.getLabelColor = function() {
  * the cell grid must implement:
  *   - attachToDom()
  *   - getSize()
- *   - getIds()
  *   - getAdjacentIds(id)
  *   - renderCells([{id, color, label, labelColor}])
  *   - addListener(name, callback), where callback takes (event, cellId)
@@ -83,24 +82,23 @@ export default function Minesweeper(cellGrid) {
     tilesLeftToReveal = numCells - numMines;
     // shuffle array to determine mine indices
     const mineIndices = new Array(numCells).fill(false);
-    for (let i = 0; i < numMines; i++) {
+    for (let i = 0; i < numMines; ++i) {
       mineIndices[i] = true;
     }
     shuffle(mineIndices);
     // assign mine info while constructing the cell data map
     const cellData = [];
-    let i = 0;
-    for (let id = 0; id < cellGrid.getSize(); id++) {
-      const hasMine = mineIndices[i++];
+    for (let id = 0; id < cellGrid.getSize(); ++id) {
+      const hasMine = mineIndices[id];
       const data = new MinesweeperData(hasMine);
       cellData[id] = data;
     }
     // init cell labels
-    for (let id = 0; id < cellData.length; id++) {
+    for (let id = 0; id < cellData.length; ++id) {
       const data = cellData[id];
       for (const nbrId of cellGrid.getAdjacentIds(id)) {
         if (cellData[nbrId].hasMine) {
-          data.adjacentMines++;
+          ++data.adjacentMines;
         }
       }
     }
@@ -115,21 +113,21 @@ export default function Minesweeper(cellGrid) {
     let numOpenTiles = cellGrid.getSize() - numMines;
     let indexToSwap = rand(numOpenTiles);
     let i = 0;
-    for (let id = 0; id < cellData.length; id++) {
+    for (let id = 0; id < cellData.length; ++id) {
       const data = cellData[id];
       if (!data.hasMine) {
         if (i === indexToSwap) {
           data.hasMine = true;
           for (const nbrId of cellGrid.getAdjacentIds(id)) {
-            cellData[nbrId].adjacentMines++;
+            ++cellData[nbrId].adjacentMines;
           }
           cellData[originalId].hasMine = false;
           for (const nbrId of cellGrid.getAdjacentIds(originalId)) {
-            cellData[nbrId].adjacentMines--;
+            --cellData[nbrId].adjacentMines;
           }
           return;
         }
-        i++;
+        ++i;
       }
     }
   };
@@ -186,10 +184,10 @@ export default function Minesweeper(cellGrid) {
     }
     if (data.isFlagged) {
       data.isFlagged = false;
-      numFlags--;
+      --numFlags;
     }
     data.isRevealed = true;
-    tilesLeftToReveal--;
+    --tilesLeftToReveal;
     updatedIds.add(id);
     if (data.adjacentMines === 0) {
       // a new cavern has been discovered
