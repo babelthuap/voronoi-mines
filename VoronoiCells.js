@@ -210,8 +210,15 @@ export default function VoronoiCells() {
           cell.minY = y;
         }
         const yOffset = y - cell.minY;
-        const cellRow = cell.rows[yOffset] || (cell.rows[yOffset] = []);
-        cellRow.push(x);
+        let cellRow = cell.rows[yOffset];
+        if (cellRow === undefined) {
+          // new row; set left and right x index to the current x value
+          cellRow = cell.rows[yOffset] = new Array(2);
+          cellRow[0] = cellRow[1] = x;
+        } else {
+          // existing row; update right x index
+          cellRow[1] = x;
+        }
       }
     }
     // right edge
@@ -239,9 +246,10 @@ export default function VoronoiCells() {
         const row = rows[dy];
         if (row !== undefined) {
           const y = minY + dy;
-          num += row.length;
-          xTotal += row.length * (row.length + 2 * row[0] - 1) / 2;
-          yTotal += y * row.length;
+          const rowLength = row[1] - row[0] + 1;
+          num += rowLength;
+          xTotal += rowLength * (rowLength + 2 * row[0] - 1) / 2;
+          yTotal += y * rowLength;
         }
       }
       geometricCenter[0] = Math.round(xTotal / num);
@@ -273,8 +281,8 @@ export default function VoronoiCells() {
           if (row !== undefined) {
             const y = minY + dy;
             const rowOffset = width * y;
-            for (let j = 0; j < row.length; ++j) {
-              const pixelIndex = rowOffset + row[j];
+            for (let x = row[0]; x <= row[1]; ++x) {
+              const pixelIndex = rowOffset + x;
               if (bitmap.getPixelR(pixelIndex) !== BORDER_R) {
                 bitmap.setPixel(pixelIndex, color);
               }
@@ -303,8 +311,8 @@ export default function VoronoiCells() {
       bitmap.addEventListener(name, (event) => {
         const {layerX, layerY} = event;
         if (0 <= layerX && layerX < width && 0 <= layerY && layerY < height) {
-          const cell = coordsToCellId[layerX + width * layerY];
-          callback(event, cell);
+          const id = coordsToCellId[layerX + width * layerY];
+          callback(event, id);
         } else {
           callback(event, null);
         }
