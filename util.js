@@ -139,7 +139,11 @@ export const sortLattice = () => {
   const name = 'sortedLattice' + metric;
   const serialized = localStorage[name];
   if (serialized) {
-    return JSON.parse(serialized);
+    if (!serialized.startsWith('0,')) {
+      localStorage.removeItem(name);
+    } else {
+      return Int8Array.from(JSON.parse('[' + serialized + ']'));
+    }
   }
 
   const quadrant = (x, y) => {
@@ -195,10 +199,17 @@ export const sortLattice = () => {
     }
   };
 
-  const sortedLattice = points.sort(compare).flatMap(({x, y}) => [x, y]);
+  const sortedPoints = points.sort(compare);
+  const sortedLatticeFlat = new Int8Array(sortedPoints.length << 1);
+  for (let i = 0; i < sortedPoints.length; ++i) {
+    const {x, y} = sortedPoints[i];
+    sortedLatticeFlat[i << 1] = x;
+    sortedLatticeFlat[(i << 1) + 1] = y;
+  }
+
   setTimeout(() => {
-    localStorage[name] = JSON.stringify(sortedLattice);
+    localStorage[name] = sortedLatticeFlat;
   }, 1000);
 
-  return sortedLattice;
+  return sortedLatticeFlat;
 };
