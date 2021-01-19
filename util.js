@@ -128,7 +128,7 @@ export const colorOffsets = new ColorOffsets();
 export const HEX_MASK = 0xff;
 export const hexToRgb =
     (hex) => [hex >> 16, (hex >> 8) & HEX_MASK, hex & HEX_MASK];
-export const rgbToHex = (rgb) => (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+export const rgbToHex = (r, g, b) => (r << 16) | (g << 8) | b;
 
 /**
  * sorts a lattice of points by their distance from the origin, breaking ties by
