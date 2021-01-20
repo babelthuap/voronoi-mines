@@ -33,7 +33,7 @@ export const rand = (n) => Math.floor(Math.random() * n);
 
 // Knuth shuffle
 export const shuffle = (arr) => {
-  for (let i = arr.length - 1; i > 0; i--) {
+  for (let i = arr.length - 1; i > 0; --i) {
     let j = rand(i + 1);
     let temp = arr[j];
     arr[j] = arr[i];
@@ -96,7 +96,7 @@ export const calculateBorderGuesses = (width, height, numCells) => {
   }
   const expectedCellsPerRow = Math.floor(Math.sqrt(width * numCells / height));
   const borderGuesses = new Array(expectedCellsPerRow);
-  for (let i = 0; i < expectedCellsPerRow; i++) {
+  for (let i = 0; i < expectedCellsPerRow; ++i) {
     borderGuesses[i] = Math.round((i + 1) * width / expectedCellsPerRow) - 1;
   }
   borderGuessesMemo[key] = borderGuesses;
@@ -114,7 +114,7 @@ function ColorOffsets() {
     while (offsets.length < numDistinct) {
       // generate more
       const next = new Set();
-      for (let i = maxSetIndex; i < offsets.length; i++) {
+      for (let i = maxSetIndex; i < offsets.length; ++i) {
         const color = offsets[i];
         next.add(color + r);
         next.add(color + g);
@@ -157,32 +157,36 @@ export const sortLattice = () => {
   const points = [];
   switch (metric) {
     case 1:
-      for (let i = 0, x = -LATTICE_RADIUS; x <= LATTICE_RADIUS; x++) {
+      for (let i = 0, x = -LATTICE_RADIUS; x <= LATTICE_RADIUS; ++x) {
         const absX = Math.abs(x);
         const maxY = LATTICE_RADIUS - absX;
-        for (let y = -maxY; y <= maxY; y++) {
-          points[i++] = {x, y, n: absX + Math.abs(y), q: quadrant(x, y)};
+        for (let y = -maxY; y <= maxY; ++y) {
+          points[i] = {x, y, n: absX + Math.abs(y), q: quadrant(x, y)};
+          ++i;
         }
       }
       break;
     case 3:
       const r3 = LATTICE_RADIUS * LATTICE_RADIUS * LATTICE_RADIUS;
-      for (let i = 0, x = -LATTICE_RADIUS; x <= LATTICE_RADIUS; x++) {
+      const ONE_THIRD = 1 / 3;
+      for (let i = 0, x = -LATTICE_RADIUS; x <= LATTICE_RADIUS; ++x) {
         const x3 = Math.abs(x * x * x);
-        const maxY = Math.floor(Math.pow(Math.abs(r3 - x3), 1 / 3));
-        for (let y = -maxY; y <= maxY; y++) {
-          points[i++] = {x, y, n: x3 + Math.abs(y * y * y), q: quadrant(x, y)};
+        const maxY = Math.floor(Math.pow(Math.abs(r3 - x3), ONE_THIRD));
+        for (let y = -maxY; y <= maxY; ++y) {
+          points[i] = {x, y, n: x3 + Math.abs(y * y * y), q: quadrant(x, y)};
+          ++i;
         }
       }
       break;
     case 2:
     default:
       const r2 = LATTICE_RADIUS * LATTICE_RADIUS;
-      for (let i = 0, x = -LATTICE_RADIUS; x <= LATTICE_RADIUS; x++) {
+      for (let i = 0, x = -LATTICE_RADIUS; x <= LATTICE_RADIUS; ++x) {
         const x2 = x * x;
         const maxY = Math.floor(Math.sqrt(r2 - x2));
-        for (let y = -maxY; y <= maxY; y++) {
-          points[i++] = {x, y, n: x2 + y * y, q: quadrant(x, y)};
+        for (let y = -maxY; y <= maxY; ++y) {
+          points[i] = {x, y, n: x2 + y * y, q: quadrant(x, y)};
+          ++i;
         }
       }
   }
