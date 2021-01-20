@@ -14,13 +14,17 @@ body {
   display: flex;
   font-size: 16px;
   justify-content: space-between;
-  padding: 8px;
+  padding: 8px 36px;
   text-align: center;
 }
 
 #inputs input {
   font-size: 16px;
   font-family: Courier, monospace;
+}
+
+#numCells {
+  width: 60px;
 }
 
 #density {
