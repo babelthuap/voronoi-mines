@@ -29,7 +29,7 @@ function MinesweeperData(hasMine) {
 }
 MinesweeperData.prototype.getColor = function() {
   const color = this.isRevealed ? REVEALED : CONCEALED;
-  return this.hover ? [color[0], color[1] - 32, color[2] - 64] : color;
+  return this.hover ? color.map((val, i) => val - i * 32) : color;
 };
 MinesweeperData.prototype.getLabel = function() {
   if (this.isRevealed) {
@@ -81,7 +81,7 @@ export default function Minesweeper(cellGrid) {
     updateCounters();
     tilesLeftToReveal = numCells - numMines;
     // shuffle array to determine mine indices
-    const mineIndices = new Array(numCells).fill(false);
+    const mineIndices = new Array(numCells);
     for (let i = 0; i < numMines; ++i) {
       mineIndices[i] = true;
     }
@@ -89,7 +89,7 @@ export default function Minesweeper(cellGrid) {
     // assign mine info while constructing the cell data map
     const cellData = [];
     for (let id = 0; id < cellGrid.getSize(); ++id) {
-      const hasMine = mineIndices[id];
+      const hasMine = mineIndices[id] === true;
       const data = new MinesweeperData(hasMine);
       cellData[id] = data;
     }
