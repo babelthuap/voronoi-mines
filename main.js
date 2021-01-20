@@ -109,6 +109,9 @@ El.DENSITY_INPUT.addEventListener('change', () => {
   nextGame = undefined;
   localStorage.voronoiMinesweeperDensity = El.DENSITY_INPUT.value;
 });
+window.addEventListener('resize', () => {
+  nextGame = undefined;
+});
 
 /**
  * enable changing metric via dropdown menu
