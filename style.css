@@ -126,7 +126,7 @@ body {
 }
 
 .ease-transition {
-  transition: all .5s ease-in;
+  transition: all .5s linear;
 }
 
 #highScoresPanel {

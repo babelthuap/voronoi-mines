@@ -88,7 +88,14 @@ El.NUM_CELLS_INPUT.addEventListener('keypress', handleInputKeypress);
 El.DENSITY_INPUT.addEventListener('keypress', handleInputKeypress);
 El.RESTART_BUTTON.addEventListener('click', start);
 window.addEventListener('keydown', event => {
-  if (event.key === 's') start();
+  switch (event.key) {
+    case 's':
+      start();
+      break;
+    case 'Escape':
+      hideHighScoresPanel();
+      break;
+  }
 });
 
 /**
