@@ -1,4 +1,4 @@
-import {createEl, El, formatMinSec} from './util.js';
+import {createEl, El, formatMinSec2} from './util.js';
 
 const highScores = localStorage.voronoiMinesweeperHighScores ?
     JSON.parse(localStorage.voronoiMinesweeperHighScores) :
@@ -24,9 +24,7 @@ const renderHighScoresTable = (scores, date) => {
     const tr = document.createElement('tr');
     tr.appendChild(createEl('td', i + 1));
     tr.appendChild(createEl('td', score.name));
-    const formattedTime = formatMinSec(score.time) +
-        ((score.time / 1000) % 1).toFixed(2).slice(1);
-    tr.appendChild(createEl('td', formattedTime));
+    tr.appendChild(createEl('td', formatMinSec2(score.time)));
     tr.appendChild(
         createEl('td', new Date(score.date).toLocaleString(undefined, {
           dateStyle: 'short',

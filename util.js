@@ -43,12 +43,17 @@ export const shuffle = (arr) => {
 };
 
 // formats time as min:sec
-const SEC_PER_MS = 1 / 1000;
 const MIN_PER_SEC = 1 / 60;
-export const formatMinSec = (ms) => {
-  const sec = Math.floor(ms * SEC_PER_MS);
+export const SEC_PER_MS = 1 / 1000;
+export const formatMinSec0 = (sec) => {
   const min = Math.floor(sec * MIN_PER_SEC);
   return `${min}:${(sec % 60).toString().padStart(2, '0')}`;
+};
+export const formatMinSec2 = (ms) => {
+  const sec = ms * SEC_PER_MS;
+  const secPart = (sec % 60).toFixed(2).padStart(5, '0');
+  const min = Math.floor(sec * MIN_PER_SEC);
+  return `${min}:${secPart}`;
 };
 
 // distance function
@@ -83,19 +88,18 @@ export const pair = (x, y) => (x << 15) | y;
 export const unpair = n => [n >> 15, n & MASK];
 
 // guesses for the locations of cell borders
-const borderGuessesMemo = new Map();
+const borderGuessesMemo = {};
 export const calculateBorderGuesses = (width, height, numCells) => {
   const key = `${width},${height},${numCells}`;
-  let borderGuesses = borderGuessesMemo.get(key);
-  if (borderGuesses !== undefined) {
-    return borderGuesses;
+  if (key in borderGuessesMemo) {
+    return borderGuessesMemo[key];
   }
   const expectedCellsPerRow = Math.floor(Math.sqrt(width * numCells / height));
-  borderGuesses = new Array(expectedCellsPerRow);
+  const borderGuesses = new Array(expectedCellsPerRow);
   for (let i = 0; i < expectedCellsPerRow; i++) {
     borderGuesses[i] = Math.round((i + 1) * width / expectedCellsPerRow) - 1;
   }
-  borderGuessesMemo.set(key, borderGuesses);
+  borderGuessesMemo[key] = borderGuesses;
   return borderGuesses;
 };
 

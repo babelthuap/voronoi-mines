@@ -1,11 +1,10 @@
+import {hideHighScoresPanel, updateHighScores} from './highscores.js';
 import Minesweeper from './Minesweeper.js';
-import {updateHighScores, hideHighScoresPanel} from './highscores.js';
-import {createEl, El, formatMinSec} from './util.js';
+import {createEl, El, formatMinSec0, SEC_PER_MS} from './util.js';
 import VoronoiCells from './VoronoiCells.js';
 
 let timerRunning = false;
 let currentGameDuration;
-
 
 /**
  * starts the game timer
@@ -13,13 +12,13 @@ let currentGameDuration;
 const startTimer = () => {
   timerRunning = true;
   const start = performance.now();
-  let formattedTime = '0:00';
+  let elapsedSeconds = 0;
   const updateTimer = () => {
     currentGameDuration = performance.now() - start;
-    let newFormattedTime = formatMinSec(currentGameDuration);
-    if (newFormattedTime !== formattedTime) {
-      El.TIMER.innerText = newFormattedTime;
-      formattedTime = newFormattedTime;
+    const newElapsedSeconds = Math.floor(currentGameDuration * SEC_PER_MS);
+    if (newElapsedSeconds > elapsedSeconds) {
+      elapsedSeconds = newElapsedSeconds;
+      El.TIMER.innerText = formatMinSec0(newElapsedSeconds);
     }
     if (timerRunning) {
       requestAnimationFrame(updateTimer);
@@ -27,7 +26,6 @@ const startTimer = () => {
   };
   requestAnimationFrame(updateTimer);
 };
-
 
 /**
  * handles the end of a game
@@ -80,21 +78,6 @@ const start = () => {
 // initialize the first game on page load
 start();
 
-
-// TEST
-// setTimeout(() => {
-//   let times = [];
-//   for (let i = 0; i < 25; i++) {
-//     let s = performance.now();
-//     new VoronoiCells();
-//     times.push(performance.now() - s);
-//   }
-//   console.log('times:', times);
-//   console.log(
-//       'avg', (times.reduce((sum, t) => sum + t, 0) / times.length).toFixed(0));
-// }, 10);
-
-
 /**
  * listen for inputs that trigger a new game
  */
@@ -117,7 +100,6 @@ El.NUM_CELLS_INPUT.addEventListener('change', () => {
 El.DENSITY_INPUT.addEventListener('change', () => {
   localStorage.voronoiMinesweeperDensity = El.DENSITY_INPUT.value;
 });
-
 
 /**
  * enable changing metric via dropdown menu
