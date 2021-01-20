@@ -102,9 +102,11 @@ window.addEventListener('keydown', event => {
  * persist # cells and density %
  */
 El.NUM_CELLS_INPUT.addEventListener('change', () => {
+  nextGame = undefined;
   localStorage.voronoiMinesweeperNumCells = El.NUM_CELLS_INPUT.value;
 });
 El.DENSITY_INPUT.addEventListener('change', () => {
+  nextGame = undefined;
   localStorage.voronoiMinesweeperDensity = El.DENSITY_INPUT.value;
 });
 
