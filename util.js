@@ -82,10 +82,7 @@ export const dist = (metric == 1) ?
                      }));
 
 // store two positive shorts in one int
-// technically, x in [0, 2**16), y in [0, 2**15)
-const MASK = 2 ** 15 - 1;
-export const pair = (x, y) => (x << 15) | y;
-export const unpair = n => [n >> 15, n & MASK];
+export const pair = (x, y) => (x << 16) | y;
 
 // guesses for the locations of cell borders
 const borderGuessesMemo = {};

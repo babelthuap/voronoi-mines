@@ -111,13 +111,13 @@ export default function VoronoiCells() {
     for (let id = 0; id < numCells; ++id) {
       let x, y;
       do {
-        x = rand(w) * 3;
-        y = rand(h) * 3;
+        x = rand(w);
+        y = rand(h);
       } while (centers.has(pair(x, y)));
       centers.add(pair(x, y));
       cells[id] = {
-        x,
-        y,
+        x: x * 3,
+        y: y * 3,
         minY: undefined,
         rows: [],
         neighbors: new Set(),
@@ -275,12 +275,7 @@ export default function VoronoiCells() {
           if (row !== undefined) {
             const y = minY + dy;
             const rowOffset = width * y;
-            for (let x = row[0]; x <= row[1]; ++x) {
-              const pixelIndex = rowOffset + x;
-              if (bitmap.getPixelR(pixelIndex) !== BORDER_R) {
-                bitmap.setPixel(pixelIndex, color);
-              }
-            }
+            bitmap.setRow(rowOffset + row[0], rowOffset + row[1], color);
           }
         }
       }
