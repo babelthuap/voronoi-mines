@@ -121,7 +121,7 @@ export default function VoronoiCells() {
         minY: undefined,
         rows: [],
         neighbors: new Set(),
-        geometricCenter: new Array(2),
+        geometricCenter: new Uint16Array(2),
       };
     }
     return cells;
@@ -207,7 +207,7 @@ export default function VoronoiCells() {
         let cellRow = cell.rows[yOffset];
         if (cellRow === undefined) {
           // new row; set left and right x index to the current x value
-          cellRow = cell.rows[yOffset] = new Array(2);
+          cellRow = cell.rows[yOffset] = new Uint16Array(2);
           cellRow[0] = cellRow[1] = x;
         } else {
           // existing row; update right x index
@@ -242,7 +242,7 @@ export default function VoronoiCells() {
           const y = minY + dy;
           const rowLength = row[1] - row[0] + 1;
           num += rowLength;
-          xTotal += rowLength * (rowLength + 2 * row[0] - 1) / 2;
+          xTotal += (rowLength * (rowLength + (row[0] << 1) - 1)) >> 1;
           yTotal += y * rowLength;
         }
       }
