@@ -130,16 +130,10 @@ export default function VoronoiCells() {
   // partition cells
   const coordsToCellId = (() => {
     const numPixels = height * width;
-    if (pixelsArray === undefined) {
-      pixelsArray = new Array(numPixels);
-    } else {
-      const oldLength = pixelsArray.length;
-      if (pixelsArray.length !== numPixels) {
-        pixelsArray.length = numPixels;
-      }
-      pixelsArray.fill(undefined, 0, oldLength);
+    if (pixelsArray === undefined || pixelsArray.length !== numPixels) {
+      pixelsArray = new Uint16Array(numPixels);
     }
-    const coordsToCellId = pixelsArray;
+    const coordsToCellId = pixelsArray.fill(0xffff);
 
     // expanding circles method
     const thisSeemsToWork =
@@ -155,7 +149,7 @@ export default function VoronoiCells() {
           const x = cell.x + dx;
           if (x >= 0 && x < width) {
             const pixelIndex = x + width * y;
-            if (coordsToCellId[pixelIndex] === undefined) {
+            if (coordsToCellId[pixelIndex] === 0xffff) {
               coordsToCellId[pixelIndex] = id;
             }
           }
@@ -167,7 +161,7 @@ export default function VoronoiCells() {
     const borderGuesses = calculateBorderGuesses(width, height, cells.length);
     const getOrCalculatePixel = (pixelIndex) => {
       const cellIndex = coordsToCellId[pixelIndex];
-      return cellIndex === undefined ?
+      return cellIndex === 0xffff ?
           coordsToCellId[pixelIndex] =
               findClosestCell(pixelIndex, width, cells) :
           cellIndex;
