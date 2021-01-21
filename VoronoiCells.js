@@ -131,9 +131,11 @@ export default function VoronoiCells() {
   const coordsToCellId = (() => {
     const numPixels = height * width;
     if (pixelsArray === undefined || pixelsArray.length !== numPixels) {
-      pixelsArray = new Uint16Array(numPixels);
+      pixelsArray = cells.length < 0xff ? new Uint8Array(numPixels) :
+                                          new Uint16Array(numPixels);
     }
-    const coordsToCellId = pixelsArray.fill(0xffff);
+    const unsetId = cells.length < 0xff ? 0xff : 0xffff;
+    const coordsToCellId = pixelsArray.fill(unsetId);
 
     // expanding circles method
     const thisSeemsToWork =
@@ -149,7 +151,7 @@ export default function VoronoiCells() {
           const x = cell.x + dx;
           if (x >= 0 && x < width) {
             const pixelIndex = x + width * y;
-            if (coordsToCellId[pixelIndex] === 0xffff) {
+            if (coordsToCellId[pixelIndex] === unsetId) {
               coordsToCellId[pixelIndex] = id;
             }
           }
@@ -161,7 +163,7 @@ export default function VoronoiCells() {
     const borderGuesses = calculateBorderGuesses(width, height, cells.length);
     const getOrCalculatePixel = (pixelIndex) => {
       const cellIndex = coordsToCellId[pixelIndex];
-      return cellIndex === 0xffff ?
+      return cellIndex === unsetId ?
           coordsToCellId[pixelIndex] =
               findClosestCell(pixelIndex, width, cells) :
           cellIndex;
