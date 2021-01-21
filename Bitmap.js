@@ -1,4 +1,4 @@
-import {El, rgbToHex} from './util.js';
+import {El} from './util.js';
 
 /**
  * a canvas that fills the board container and whose pixels can be written to
@@ -67,6 +67,16 @@ export default function Bitmap() {
       data[red] = rgb[0];
       data[red + 1] = rgb[1];
       data[red + 2] = rgb[2];
+    },
+
+    setRow(leftIndex, rightIndex, rgb) {
+      for (let i = (leftIndex << 2); i < (rightIndex << 2) + 1; i += 4) {
+        if (data[i] !== 0) {  // check for border
+          data[i] = rgb[0];
+          data[i + 1] = rgb[1];
+          data[i + 2] = rgb[2];
+        }
+      }
     },
 
     fillText(text, color, x, y) {
