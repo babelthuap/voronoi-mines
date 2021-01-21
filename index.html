@@ -53,14 +53,12 @@
     </table>
   </div>
   <script>
-  (() => {
   document.getElementById('numCells').value =
       localStorage.voronoiMinesweeperNumCells || 200;
   document.getElementById('density').value =
       localStorage.voronoiMinesweeperDensity || 15;
   document.getElementById('metric').value =
       ({1: 1, 2: 2, 3: 3})[new URLSearchParams(location.search).get('metric')] || 2;
-  })();
   </script>
   <script type="module" src="main.js"></script>
 </body>
