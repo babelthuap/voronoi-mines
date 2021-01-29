@@ -82,7 +82,10 @@ start();
  * listen for inputs that trigger a new game
  */
 const handleInputKeypress = (event) => {
-  if (event.key === 'Enter') start();
+  if (event.key === 'Enter') {
+    nextGame = undefined;
+    start();
+  }
 };
 El.NUM_CELLS_INPUT.addEventListener('keypress', handleInputKeypress);
 El.DENSITY_INPUT.addEventListener('keypress', handleInputKeypress);
