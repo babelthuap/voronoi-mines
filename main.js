@@ -47,17 +47,26 @@ const start = () => {
   if (startInProgress) {
     return;
   }
+  // reset score tracking
   startInProgress = true;
   timerRunning = false;
   currentGameDuration = 0;
   hideHighScoresPanel();
+  // validate game parameters
+  let numCells = El.NUM_CELLS_INPUT.value;
+  if (!validateNumCells(numCells)) {
+    numCells = El.NUM_CELLS_INPUT.value = 200;
+  }
+  let density = El.DENSITY_INPUT.value;
+  if (!validateDensity(density)) {
+    density = El.DENSITY_INPUT.value = 15;
+  }
+  // start game
   return (nextGame || Promise.resolve(new Minesweeper(new VoronoiCells())))
       .then(game => {
         nextGame = undefined;
         game.attachToDom();
         game.onStart(startTimer);
-        const numCells = El.NUM_CELLS_INPUT.value;
-        const density = El.DENSITY_INPUT.value;
         game.onEnd(win => {
           handleGameEnd(win, numCells, density).then(() => {
             requestAnimationFrame(() => {
@@ -92,6 +101,11 @@ El.DENSITY_INPUT.addEventListener('keypress', handleInputKeypress);
 El.RESTART_BUTTON.addEventListener('click', start);
 window.addEventListener('keydown', event => {
   switch (event.key) {
+    case 'r':
+      if (!event.ctrlKey) {
+        new VoronoiCells().attachToDom();
+      }
+      break;
     case 's':
       start();
       break;
@@ -106,15 +120,26 @@ window.addEventListener('keydown', event => {
  */
 El.NUM_CELLS_INPUT.addEventListener('change', () => {
   nextGame = undefined;
-  localStorage.voronoiMinesweeperNumCells = El.NUM_CELLS_INPUT.value;
+  const numCells = parseInt(El.NUM_CELLS_INPUT.value);
+  if (validateNumCells(numCells)) {
+    localStorage.voronoiMinesweeperNumCells = El.NUM_CELLS_INPUT.value;
+  }
 });
 El.DENSITY_INPUT.addEventListener('change', () => {
   nextGame = undefined;
-  localStorage.voronoiMinesweeperDensity = El.DENSITY_INPUT.value;
+  const density = parseInt(El.DENSITY_INPUT.value);
+  if (validateDensity(density)) {
+    localStorage.voronoiMinesweeperDensity = El.DENSITY_INPUT.value;
+  }
 });
-window.addEventListener('resize', () => {
-  nextGame = undefined;
-});
+
+function validateNumCells(numCells) {
+  return numCells > 0 && numCells < 0xffff;
+}
+
+function validateDensity(density) {
+  return density > 0 && density < 90;
+}
 
 /**
  * enable changing metric via dropdown menu
