@@ -50,6 +50,8 @@ export const formatMinSec0 = (sec) => {
   return `${min}:${(sec % 60).toString().padStart(2, '0')}`;
 };
 export const formatMinSec2 = (ms) => {
+  // round to nearest hundredth of a second
+  ms = Math.round(ms / 10) * 10;
   const sec = ms * SEC_PER_MS;
   const secPart = (sec % 60).toFixed(2).padStart(5, '0');
   const min = Math.floor(sec * MIN_PER_SEC);
