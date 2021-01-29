@@ -101,11 +101,6 @@ El.DENSITY_INPUT.addEventListener('keypress', handleInputKeypress);
 El.RESTART_BUTTON.addEventListener('click', start);
 window.addEventListener('keydown', event => {
   switch (event.key) {
-    case 'r':
-      if (!event.ctrlKey) {
-        new VoronoiCells().attachToDom();
-      }
-      break;
     case 's':
       start();
       break;
