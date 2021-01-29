@@ -130,7 +130,9 @@ export default function VoronoiCells() {
   // partition cells
   const coordsToCellId = (() => {
     const numPixels = height * width;
-    if (pixelsArray === undefined || pixelsArray.length !== numPixels) {
+    if (pixelsArray === undefined || pixelsArray.length !== numPixels ||
+        (cells.length < 0xff && pixelsArray.BYTES_PER_ELEMENT === 2) ||
+        (cells.length >= 0xff && pixelsArray.BYTES_PER_ELEMENT === 1)) {
       pixelsArray = cells.length < 0xff ? new Uint8Array(numPixels) :
                                           new Uint16Array(numPixels);
     }
