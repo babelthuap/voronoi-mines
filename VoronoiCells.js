@@ -234,25 +234,28 @@ export default function VoronoiCells() {
       Math.round(performance.now() - startInitialRender)} ms`);
 
   // calculate geometric centers
-  requestAnimationFrame(() => {
-    for (let id = 0; id < cells.length; ++id) {
-      const {minY, rows, geometricCenter} = cells[id];
-      let num = 0;
-      let xTotal = 0;
-      let yTotal = 0;
-      for (let dy = 0; dy < rows.length; ++dy) {
-        const row = rows[dy];
-        if (row !== undefined) {
-          const y = minY + dy;
-          const rowLength = row[1] - row[0] + 1;
-          num += rowLength;
-          xTotal += (rowLength * (rowLength + (row[0] << 1) - 1)) >> 1;
-          yTotal += y * rowLength;
+  const geometricCentersPromise = new Promise(resolve => {
+    requestAnimationFrame(() => {
+      for (let id = 0; id < cells.length; ++id) {
+        const {minY, rows, geometricCenter} = cells[id];
+        let num = 0;
+        let xTotal = 0;
+        let yTotal = 0;
+        for (let dy = 0; dy < rows.length; ++dy) {
+          const row = rows[dy];
+          if (row !== undefined) {
+            const y = minY + dy;
+            const rowLength = row[1] - row[0] + 1;
+            num += rowLength;
+            xTotal += (rowLength * (rowLength + (row[0] << 1) - 1)) >> 1;
+            yTotal += y * rowLength;
+          }
         }
+        geometricCenter[0] = Math.round(xTotal / num);
+        geometricCenter[1] = Math.round(yTotal / num);
       }
-      geometricCenter[0] = Math.round(xTotal / num);
-      geometricCenter[1] = Math.round(yTotal / num);
-    }
+      resolve();
+    });
   });
 
   // methods
@@ -285,19 +288,21 @@ export default function VoronoiCells() {
       }
       bitmap.repaint();
 
-      // print labels, if necessary
-      let labelPrinted = false;
-      for (let i = 0; i < idColorLabelArr.length; ++i) {
-        const {id, label, labelColor} = idColorLabelArr[i];
-        if (label) {
-          const [x, y] = cells[id].geometricCenter;
-          bitmap.fillText(label, labelColor, x, y);
-          labelPrinted = true;
+      geometricCentersPromise.then(() => {
+        // print labels, if necessary
+        let labelPrinted = false;
+        for (let i = 0; i < idColorLabelArr.length; ++i) {
+          const {id, label, labelColor} = idColorLabelArr[i];
+          if (label) {
+            const [x, y] = cells[id].geometricCenter;
+            bitmap.fillText(label, labelColor, x, y);
+            labelPrinted = true;
+          }
         }
-      }
-      if (labelPrinted) {
-        bitmap.rasterize();
-      }
+        if (labelPrinted) {
+          bitmap.rasterize();
+        }
+      });
     },
 
     addListener(name, callback) {
