@@ -217,7 +217,6 @@ export default function Minesweeper(cellGrid) {
         requestAnimationFrame(() => {
           data.isRevealed = true;
           renderCells(cellData.keys(), /* showAllMines= */ true);
-          El.BOARD_CONTAINER.appendChild(El.BOOM);
         });
         endHandlers.forEach(fn => fn(false));
         return;
@@ -232,7 +231,6 @@ export default function Minesweeper(cellGrid) {
     updateCounters();
     if (tilesLeftToReveal === 0) {
       gameInProgress = false;
-      El.BOARD_CONTAINER.appendChild(El.WINNER);
       endHandlers.forEach(fn => fn(true));
     }
   };

@@ -26,7 +26,6 @@ export const El = {
   TABLE_CONTAINER: document.getElementById('tableContainer'),
   TIMER: document.getElementById('timer'),
   VIEW_HIGH_SCORES: document.getElementById('viewHighScores'),
-  WINNER: createEl('div', 'WINNER', 'winner'),
 };
 
 // random int in [0, n)
