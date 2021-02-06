@@ -13,12 +13,15 @@ const highScores = localStorage.voronoiMinesweeperHighScores ?
     };
 let name = localStorage.voronoiMinesweeperName;
 
+let mostRecentWinDate = NaN;
+
 
 /**
  * renders a list of high scores
  */
-const renderHighScoresTable = (scores, date) => {
+const renderHighScoresTable = (scores) => {
   El.HIGH_SCORES_TABLE.innerHTML = '';
+  let highlightedIndex, highlightedRow;
   for (let i = 0; i < scores.length; i++) {
     const score = scores[i];
     const tr = document.createElement('tr');
@@ -30,10 +33,17 @@ const renderHighScoresTable = (scores, date) => {
           dateStyle: 'short',
           timeStyle: 'short',
         })));
-    if (date === score.date) {
+    if (score.date === mostRecentWinDate) {
       tr.classList.add('highlight');
+      highlightedIndex = i;
+      highlightedRow = tr;
     }
     El.HIGH_SCORES_TABLE.appendChild(tr);
+  }
+  if (highlightedRow && highlightedRow.scrollIntoView && highlightedIndex > 9) {
+    setTimeout(
+        () => highlightedRow.scrollIntoView({behavior: 'smooth', block: 'end'}),
+        500);
   }
 };
 
@@ -41,7 +51,7 @@ const renderHighScoresTable = (scores, date) => {
 /**
  * displays the high scores
  */
-const displayHighScoresPanel = (numCells, density, date) => {
+const displayHighScoresPanel = (numCells, density) => {
   El.CELLS_KEY_SELECT.innerHTML = '';
   El.DENSITY_KEY_SELECT.innerHTML = '';
   let scoresToRender;
@@ -79,7 +89,7 @@ const displayHighScoresPanel = (numCells, density, date) => {
   if (scoresToRender) {
     El.CELLS_KEY_SELECT.value = numCells;
     El.DENSITY_KEY_SELECT.value = density;
-    renderHighScoresTable(scoresToRender, date);
+    renderHighScoresTable(scoresToRender);
   }
   // constrain the table height to only show the top 10 scores without scrolling
   if (!El.TABLE_CONTAINER.style.maxHeight) {
@@ -93,8 +103,11 @@ const displayHighScoresPanel = (numCells, density, date) => {
 /**
  * hides the high scores
  */
-export const hideHighScoresPanel = () => {
+export const hideHighScoresPanel = (reset = false) => {
   document.body.classList.remove('showHighScores');
+  if (reset) {
+    mostRecentWinDate = NaN;
+  }
 };
 
 
@@ -122,7 +135,8 @@ export const updateHighScores = (numCells, density, gameDuration) => {
           if (scores.length > 1000) {
             scores.length = 1000;
           }
-          displayHighScoresPanel(numCells, density, date);
+          mostRecentWinDate = date;
+          displayHighScoresPanel(numCells, density);
           localStorage.voronoiMinesweeperHighScores =
               JSON.stringify(highScores);
           resolve();
@@ -144,7 +158,7 @@ El.VIEW_HIGH_SCORES.addEventListener('click', () => {
 El.HIGH_SCORES_PANEL.querySelector('.close').addEventListener('click', () => {
   hideHighScoresPanel();
 });
-El.BACKDROP.addEventListener('click', hideHighScoresPanel);
+El.BACKDROP.addEventListener('click', () => hideHighScoresPanel());
 
 // change table within panel
 El.CELLS_KEY_SELECT.addEventListener('change', () => {

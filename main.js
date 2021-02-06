@@ -62,7 +62,7 @@ const start = () => {
   startInProgress = true;
   timerRunning = false;
   currentGameDuration = 0;
-  hideHighScoresPanel();
+  hideHighScoresPanel(/* reset= */ true);
   // validate game parameters
   let numCells = El.NUM_CELLS_INPUT.value;
   if (!validateNumCells(numCells)) {
