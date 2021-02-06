@@ -40,17 +40,19 @@
     <h1>High Scores</h1>
     # cells: <select id="cellsKey"></select>
     density(%): <select id="densityKey"></select>
-    <table>
-      <thead>
-        <tr>
-          <th>place</th>
-          <th>name</th>
-          <th>solve&nbsp;time</th>
-          <th>date</th>
-        </tr>
-      </thead>
-      <tbody id="highScoresTable"></tbody>
-    </table>
+    <div id="tableContainer">
+      <table>
+        <thead>
+          <tr>
+            <th>place</th>
+            <th>name</th>
+            <th>solve&nbsp;time</th>
+            <th>date</th>
+          </tr>
+        </thead>
+        <tbody id="highScoresTable"></tbody>
+      </table>
+    </div>
   </div>
   <script>
   document.getElementById('numCells').value = localStorage.voronoiMinesweeperNumCells || 200;

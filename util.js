@@ -23,6 +23,7 @@ export const El = {
   NUM_CELLS_INPUT: document.getElementById('numCells'),
   RESTART_BUTTON: document.getElementById('restart'),
   SCORE_CONTAINER: document.getElementById('scoreContainer'),
+  TABLE_CONTAINER: document.getElementById('tableContainer'),
   TIMER: document.getElementById('timer'),
   VIEW_HIGH_SCORES: document.getElementById('viewHighScores'),
   WINNER: createEl('div', 'WINNER', 'winner'),

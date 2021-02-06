@@ -75,10 +75,16 @@ const displayHighScoresPanel = (numCells, density, date) => {
       }
     }
   }
+  // render the selected list of scores
   if (scoresToRender) {
     El.CELLS_KEY_SELECT.value = numCells;
     El.DENSITY_KEY_SELECT.value = density;
     renderHighScoresTable(scoresToRender, date);
+  }
+  // constrain the table height to only show the top 10 scores without scrolling
+  if (!El.TABLE_CONTAINER.style.maxHeight) {
+    El.TABLE_CONTAINER.style.maxHeight =
+        `${El.TABLE_CONTAINER.querySelector('tr').clientHeight * 11 + 1}px`;
   }
   document.body.classList.add('showHighScores');
 };
@@ -99,9 +105,10 @@ export const updateHighScores = (numCells, density, gameDuration) => {
   const densities = highScores[numCells] || (highScores[numCells] = {});
   const scores = densities[density] || (densities[density] = []);
   const time = Math.round(gameDuration || 0);
-  if (scores.length < 10 || time < scores[9].time) {
+  // keep only the top 1000 scores
+  if (scores.length < 1000 || time < scores[999].time) {
+    const date = Date.now();
     return new Promise(resolve => {
-      const date = Date.now();
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           if (!name) {
@@ -112,8 +119,8 @@ export const updateHighScores = (numCells, density, gameDuration) => {
           }
           scores.push({time, date, name: name || '[anonymous]'});
           scores.sort((a, b) => (a.time - b.time) || (a.date - b.date));
-          if (scores.length > 10) {
-            scores.length = 10;
+          if (scores.length > 1000) {
+            scores.length = 1000;
           }
           displayHighScoresPanel(numCells, density, date);
           localStorage.voronoiMinesweeperHighScores =
