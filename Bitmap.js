@@ -44,6 +44,14 @@ export default function Bitmap() {
       return height;
     },
 
+    get offsetLeft() {
+      return canvas.offsetLeft;
+    },
+
+    get offsetTop() {
+      return canvas.offsetTop;
+    },
+
     attachToDom() {
       [...El.BOARD_CONTAINER.children].forEach((child) => child.remove());
       El.BOARD_CONTAINER.appendChild(canvas);

@@ -307,7 +307,8 @@ export default function VoronoiCells() {
 
     addListener(name, callback) {
       bitmap.addEventListener(name, (event) => {
-        const {layerX, layerY} = event;
+        const layerX = event.pageX - bitmap.offsetLeft;
+        const layerY = event.pageY - bitmap.offsetTop;
         if (0 <= layerX && layerX < width && 0 <= layerY && layerY < height) {
           const id = coordsToCellId[layerX + width * layerY];
           callback(event, id);
